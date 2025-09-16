@@ -1,0 +1,15 @@
+<h1>店舗一覧</h1>
+
+<% @stores.each do |store| %>
+  <div class="store-card">
+    <% if store.images.attached? %>
+      <%= image_tag store.images.first.variant(resize_to_limit: [200, 200]) %>
+    <% else %>
+      <%= image_tag 'tempo.png', size: "200x200" %>
+    <% end %>
+
+    <h2><%= link_to store.name, store_path(store) %></h2>
+    <p><%= store.prefecture %> <%= store.city %> <%= store.address_detail %></p>
+    <p>予算: ¥<%= store.budget %></p>
+  </div>
+<% end %>

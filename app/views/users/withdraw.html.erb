@@ -1,0 +1,8 @@
+<h2>退会確認</h2>
+<p><%= @user.username %>さん、本当に退会しますか？</p>
+
+<%= form_with model: @user, url: deactivate_user_path(@user), method: :patch do %>
+  <%= submit_tag "退会する", data: { confirm: "本当に退会しますか？" }, class: "btn alert" %>
+<% end %>
+
+<%= link_to "キャンセル", user_path(@user), class: "btn" %>

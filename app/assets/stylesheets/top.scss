@@ -1,0 +1,44 @@
+.top-video-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+
+  video {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  #white-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    z-index: 2;
+    transition: opacity 1s;
+  }
+
+  #tate-logo {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    width: 700px;
+    opacity: 0;
+    z-index: 3;
+    transition: opacity 1s;
+  }
+
+  #sagasu-link {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    z-index: 4;
+    transition: opacity 1s;
+  }
+}

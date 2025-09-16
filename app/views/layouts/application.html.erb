@@ -2,15 +2,42 @@
 <html>
   <head>
     <title>Hitorinomi</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
-    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbo-track': 'reload' %>
   </head>
 
   <body>
-    <%= yield %>
+  <header class="header" style="z-index: 999; position: relative;">
+  <!-- ロゴ（左寄せ） -->
+  <div class="header-left">
+    <%= link_to root_path do %>
+      <%= image_tag 'logowhite.png', alt: 'ヒトリ呑み', class: 'site-logo' %>
+    <% end %>
+  </div>
+
+  <!-- ナビゲーション（右寄せ） -->
+  <nav class="header-right">
+    <% if logged_in? %>
+      <%= link_to "マイページ", user_path(current_user) %>
+      <%= link_to "店舗一覧", stores_path %>
+      <%= link_to "フォロワー", followers_path %>
+      <%= link_to "新規投稿", new_post_path %>
+      <%= link_to "通知", notifications_path %>
+      <%= link_to "ログアウト", logout_path, method: :delete %>
+    <% else %>
+      <%= link_to "店舗一覧", stores_path %>
+      <%= link_to "ログイン", login_path %>
+      <%= link_to "新規登録", new_user_path %>
+    <% end %>
+    <%= link_to "お問い合わせ", contact_path %>
+  </nav>
+</header>
+
+
+    <main style="padding: 20px;">
+      <%= yield %>
+    </main>
   </body>
 </html>

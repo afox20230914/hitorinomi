@@ -1,0 +1,11 @@
+<h2><%= @user.username %> さんのお気に入り店舗</h2>
+
+<% if @stores.any? %>
+  <ul>
+    <% @stores.each do |store| %>
+      <li><%= link_to store.name, store_path(store) %></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>お気に入り店舗はまだありません。</p>
+<% end %>

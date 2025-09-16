@@ -1,0 +1,92 @@
+<h1>新規店舗申請フォーム</h1>
+
+<%= form_with model: @post, url: confirm_posts_path, local: true, html: { multipart: true } do |f| %>
+  <% if @post.errors.any? %>
+    <ul>
+      <% @post.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div>
+    <%= f.label :images, "画像（10枚まで、jpg）" %><br>
+    <%= f.file_field :images, multiple: true, accept: "image/jpeg" %>
+  </div>
+
+  <div>
+    <%= f.label :name, "店舗名" %>
+    <%= f.text_field :name, maxlength: 100, required: true %>
+  </div>
+
+  <div>
+    <%= f.label :postal_code, "郵便番号（ハイフンなし）" %>
+    <%= f.text_field :postal_code, required: true %>
+  </div>
+
+  <div>
+    <%= f.label :prefecture, "都道府県" %>
+    <%= f.text_field :prefecture, required: true %>
+  </div>
+
+  <div>
+    <%= f.label :city, "区市町村" %>
+    <%= f.text_field :city, required: true %>
+  </div>
+
+  <div>
+    <%= f.label :address_detail, "その他の住所" %>
+    <%= f.text_field :address_detail, required: true %>
+  </div>
+
+  <div>
+    <%= f.label :opening_time, "開店時間" %>
+    <%= f.time_select :opening_time, prompt: true %>
+  </div>
+
+  <div>
+    <%= f.label :closing_time, "閉店時間" %>
+    <%= f.time_select :closing_time, prompt: true %>
+  </div>
+
+  <div>
+    <%= f.label :seating_capacity, "座席数" %>
+    <%= f.select :seating_capacity, ["A:10人未満", "B:10～20人", "C:21～30人", "D:30人以上"] %>
+  </div>
+
+  <div>
+    <%= f.label :shop_type, "店舗タイプ" %>
+    <%= f.select :shop_type, ["A:立ち飲み", "B:バー", "C:居酒屋", "D:小料理屋", "E:その他"] %>
+  </div>
+
+  <div>
+    <%= f.label :smoking_allowed, "喫煙" %>
+    <%= f.select :smoking_allowed, ["可", "不可"] %>
+  </div>
+
+  <div>
+    <%= f.label :holidays, "定休日" %><br>
+    <% ["日", "月", "火", "水", "木", "金", "土", "祝", "不定休", "なし"].each do |day| %>
+      <%= check_box_tag "post[holidays][]", day, false, id: "holidays_#{day}" %>
+      <%= label_tag "holidays_#{day}", day %>
+    <% end %>
+  </div>
+
+  <div>
+    <%= f.label :budget, "予算（円）" %>
+    <%= f.number_field :budget, value: 1000 %>
+  </div>
+
+  <div>
+    <%= f.label :description, "店舗紹介" %>
+    <%= f.text_area :description, maxlength: 500 %>
+  </div>
+
+  <div>
+    <%= f.label :is_owner, "オーナーですか？" %><br>
+    <%= f.radio_button :is_owner, true %> はい
+    <%= f.radio_button :is_owner, false %> いいえ
+  </div>
+
+  <%= f.submit "確認画面へ" %>
+<% end %>

@@ -1,0 +1,5 @@
+<h2><%= @user.username %>さんの申請履歴</h2>
+
+<% @applications.each do |app| %>
+  <p><%= app.title %>（<%= app.created_at.to_date %>）</p>
+<% end %>

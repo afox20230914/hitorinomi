@@ -23,7 +23,6 @@ gem 'jbuilder', '~> 2.7'
 # gem 'bcrypt', '~> 3.1.7'
 
 # Use Active Storage variant
-# gem 'image_processing', '~> 1.2'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
@@ -41,7 +40,7 @@ group :development do
   gem 'rack-mini-profiler', '~> 2.0'
   gem 'listen', '~> 3.3'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-  gem 'spring'
+  gem 'spring', '4.2.1'
 end
 
 group :test do
@@ -56,3 +55,32 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'dotenv-rails'
+
+# gem "devise"
+
+#gem "devise-i18n", "~> 1.15"
+gem "rails-i18n", "~> 7.0"
+
+gem "pg_search", "~> 2.3"
+
+gem "activeadmin", "~> 3.3"
+
+gem "pundit", "~> 2.5"
+
+gem "kaminari", "~> 1.2"
+
+gem "rack-attack", "~> 6.7"
+
+gem "paper_trail", "~> 16.0"
+
+gem "redis", "~> 5.4"
+
+gem "sidekiq", "~> 7.3"
+
+gem "mini_magick", "~> 5.3"
+
+# gem "orm_adapter"
+
+gem 'bcrypt', '~> 3.1.7'
+
+gem 'image_processing', '~> 1.2'

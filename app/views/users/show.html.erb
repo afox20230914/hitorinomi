@@ -1,0 +1,76 @@
+<div class="profile-wrapper">
+
+  <!-- 左サイドバー -->
+  <div class="sidebar">
+    <div class="sidebar-box">
+      <p><%= @user.username %>さんが一番行く店！</p>
+      <% if @most_visited_store %>
+        <% if @most_visited_store.main_image_1&.attached? %>
+          <%= image_tag @most_visited_store.main_image_1.variant(resize_to_limit: [100, 100]), class: "circle-image" %>
+        <% else %>
+          <%= image_tag "tempo.png", size: "100x100", class: "circle-image" %>
+        <% end %>
+        <p><%= link_to @most_visited_store.name, store_path(@most_visited_store) %></p>
+      <% else %>
+        <p>まだ来店がありません</p>
+      <% end %>
+    </div>
+
+    <div class="sidebar-box">
+      <p><%= @user.username %>さんがお気に入りの店！</p>
+      <%= link_to "もっと見る", favorite_stores_user_path(@user), class: "detail-link" %>
+      <% @favorite_stores.limit(5).each do |store| %>
+        <div class="favorite-store">
+          <% if store.main_image_1&.attached? %>
+            <%= image_tag store.main_image_1.variant(resize_to_limit: [40, 40]), class: "circle-image" %>
+          <% else %>
+            <%= image_tag "tempo.png", size: "40x40", class: "circle-image" %>
+          <% end %>
+          <p><%= store.name %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- メインエリア -->
+  <div class="profile-main">
+
+    <!-- 登録内容編集ボタン（右上） -->
+    <div class="edit-button-wrapper">
+      <%= link_to '登録内容編集', edit_user_path(@user), class: "btn btn-outline-dark edit-button" %>
+    </div>
+
+    <!-- ユーザーアイコン -->
+    <div style="text-align: left;">
+      <% if @user.icon.attached? %>
+        <%= image_tag @user.icon, class: "profile-icon" %>
+      <% else %>
+        <%= image_tag "no_image.png", class: "profile-icon" %>
+      <% end %>
+    </div>
+    
+
+    <!-- ユーザー名 -->
+    <div class="profile-username"><%= @user.username %></div>
+
+    <!-- プロフィール文 -->
+    <div class="profile-text-left">
+      <%= @user.profile.presence || "プロフィール未設定" %>
+    </div>
+
+    <!-- 各種リンクボタン -->
+    <div class="profile-buttons">
+      <%= link_to "フォロー一覧", follows_user_path(@user), class: "btn btn-outline-secondary" %>
+      <%= link_to "フォロワー一覧", followers_user_path(@user), class: "btn btn-outline-secondary" %>
+      <%= link_to "来店履歴", visits_user_path(@user), class: "btn btn-outline-secondary" %>
+      <%= link_to "コメント履歴", comments_user_path(@user), class: "btn btn-outline-secondary" %>
+      <%= link_to "申請内容一覧", applications_user_path(@user), class: "btn btn-outline-secondary" %>
+    </div>
+
+    <!-- 退会ボタン -->
+    <div class="quit-button">
+      <%= link_to "退会する", user_path(@user), method: :delete, data: { confirm: "本当に退会しますか？" }, class: "text-danger" %>
+    </div>
+  </div>
+</div>
+

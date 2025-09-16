@@ -1,0 +1,61 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+   : MyString
+  name: MyString
+   : MyString
+  postal_code: MyString
+   : MyString
+  prefecture: MyString
+   : MyString
+  city: MyString
+   : MyString
+  address_detail: MyString
+   : MyString
+  opening_time: 2025-09-09 02:53:12
+   : MyString
+  closing_time: 2025-09-09 02:53:12
+   : MyString
+  seating_capacity: MyString
+   : MyString
+  shop_type: MyString
+   : MyString
+  smoking_allowed: MyString
+   : MyString
+  holidays: MyText
+   : MyString
+  budget: 1
+   : MyString
+  description: MyText
+   : MyString
+  is_owner: false
+
+two:
+   : MyString
+  name: MyString
+   : MyString
+  postal_code: MyString
+   : MyString
+  prefecture: MyString
+   : MyString
+  city: MyString
+   : MyString
+  address_detail: MyString
+   : MyString
+  opening_time: 2025-09-09 02:53:12
+   : MyString
+  closing_time: 2025-09-09 02:53:12
+   : MyString
+  seating_capacity: MyString
+   : MyString
+  shop_type: MyString
+   : MyString
+  smoking_allowed: MyString
+   : MyString
+  holidays: MyText
+   : MyString
+  budget: 1
+   : MyString
+  description: MyText
+   : MyString
+  is_owner: false

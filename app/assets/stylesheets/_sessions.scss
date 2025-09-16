@@ -1,0 +1,202 @@
+.login-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  background-color: #fff;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.login-container h1 {
+  margin: 20px 0;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-form input[type="email"],
+.login-form input[type="password"] {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: #d10000;
+}
+
+.login-form input::placeholder {
+  color: #aaa;
+}
+
+.login-form input:focus::placeholder {
+  color: transparent;
+}
+
+.login-button {
+  background-color: #d10000;
+  color: #fff;
+  padding: 12px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+.login-button:hover {
+  background-color: #b00000;
+}
+
+.signup-link {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 12px;
+  background-color: transparent;
+  color: #d10000;
+  border: 2px solid #d10000;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-decoration: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.signup-link:hover {
+  background-color: #ffeaea;
+}
+
+img.welcome-image {
+  width: 250px;
+  height: auto;
+  margin: 30px auto 0;
+  display: block;
+}
+
+
+
+
+.form-container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 30px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 16px;
+  background-color: #fff;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #d10000;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.submit-btn:hover {
+  background-color: #b00000;
+}
+
+/* 生年月日セレクトボックス統一 */
+.form-date select {
+  padding: 10px;
+  font-size: 16px;
+  height: 42px;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+/* プロフィール画像プレビュー */
+.profile-preview {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 10px auto;
+  display: block;
+  border: 1px solid #ccc;
+}
+
+/* 2列配置（名字・名前／生年月日・ユーザー名） */
+.field-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.field-row .field {
+  width: 48%;
+}
+
+/* 生年月日のサイズ調整 */
+.birthdate-select select {
+  font-size: 1rem;
+  padding: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* プロフィール欄の縦幅を2倍に */
+.profile-text {
+  min-height: 120px; /* 通常の約2倍 */
+}
+
+/* プレビュー画像共通 */
+.icon-preview {
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* 画像を丸くリサイズ */
+.preview-img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  display: block;
+  margin: 0 auto;
+}
+
+/* ラベルを左揃えに */
+.field-label {
+  display: block;
+  text-align: left;
+  font-weight: bold;
+  margin-bottom: 5px;
+}

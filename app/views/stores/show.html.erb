@@ -1,0 +1,101 @@
+<div class="store-show-container">
+
+<!-- メイン画像スライド -->
+<div class="main-image-section">
+  <% main_images = [@store.main_image_1, @store.main_image_2, @store.main_image_3, @store.main_image_4].compact %>
+
+<% if main_images.first.present? %>
+  <div class="main-image-container">
+    <%= image_tag main_images.first, alt: "メイン画像01", class: "main-image" %>
+  </div>
+<% else %>
+  <div class="main-image-container">
+    <%= image_tag "tempo.png", alt: "デフォルト画像", class: "main-image" %>
+  </div>
+<% end %>
+
+
+
+
+  <!-- サブ画像へのカテゴリリンク -->
+  <div class="sub-image-categories">
+    <%= link_to "内観を見る（#{Array(@store.interior_images).count}枚）", interior_images_store_path(@store), target: "_blank" %>
+    <%= link_to "外観を見る（#{Array(@store.exterior_images).count}枚）", exterior_images_store_path(@store), target: "_blank" %>
+    <%= link_to "料理を見る（#{Array(@store.food_images).count}枚）", food_images_store_path(@store), target: "_blank" %>
+    <%= link_to "メニューを見る（#{Array(@store.menu_images).count}枚）", menu_images_store_path(@store), target: "_blank" %>
+  </div>
+
+  <!-- 店舗基本情報 -->
+  <div class="store-header">
+    <h1><%= @store.name %></h1>
+    <div class="icon-row">
+      <span class="icon">[<%= @store.store_type %>]</span>
+      <span class="icon">[<%= @store.smoking_allowed %>]</span>
+      <%= link_to "来店ボタン", visit_store_path(@store), method: :post, class: "visit-btn" %>
+    </div>
+    <p class="address"><%= [@store.postal_code, @store.prefecture, @store.city, @store.address_detail].join(' ') %></p>
+    <p class="description"><%= simple_format(@store.description) %></p>
+  </div>
+
+  <!-- 店舗詳細情報 -->
+  <div class="store-details-grid">
+    <div class="store-info-box">
+      <h2>店舗情報</h2>
+      <p><strong>営業時間：</strong><%= @store.opening_time.strftime("%H:%M") %>〜<%= @store.closing_time.strftime("%H:%M") %></p>
+      <p><strong>定休日：</strong><%= @store.holidays %></p>
+      <p><strong>座席数：</strong><%= @store.seating_capacity %></p>
+      <p><strong>予算：</strong><%= number_to_currency(@store.budget, unit: "¥", precision: 0) %></p>
+    </div>
+
+    <!-- コメント一覧 -->
+    <div class="comment-box">
+      <h2>コメント一覧</h2>
+    
+      <% if @store.comments.any? %>
+        <% @store.comments.order(good_count: :desc).each do |comment| %>
+          <div class="comment-entry">
+            <details>
+              <summary><%= truncate(comment.body, length: 40) %></summary>
+              <p><%= simple_format(comment.body) %></p>
+            </details>
+            <p class="comment-meta">
+              投稿ユーザー：
+              <%= link_to comment.user.username, user_path(comment.user) %>
+            </p>
+            <div class="vote-buttons">
+              <%= button_to "👍 good", good_comment_path(comment), method: :post %>
+              <span class="good-count">（<%= comment.good_count %>）</span>
+              <%= button_to "👎 bad", bad_comment_path(comment), method: :post %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <p>まだコメントはありません。</p>
+      <% end %>
+    
+      <!-- ★ コメント投稿フォーム：常に表示 -->
+      <div class="comment-form-box">
+        <h2>コメントを投稿する</h2>
+    
+        <%= form_with(model: [@store, Comment.new], local: true) do |form| %>
+          <div class="form-group">
+            <%= form.label :body, "コメント内容" %><br>
+            <%= form.text_area :body, rows: 4 %>
+          </div>
+        
+          <%# user_id は controller 側で current_user に紐付ける %>
+        
+          <div class="form-actions">
+            <%= form.submit "投稿", class: "btn btn-primary" %>
+          </div>
+        <% end %>        
+      </div>
+    </div>
+    
+
+  <!-- 情報修正リンク -->
+  <div class="edit-request-link">
+    <%= link_to "店舗情報の修正を申請する", new_post_path(store_id: @store.id), class: "edit-link" %>
+  </div>
+
+</div>

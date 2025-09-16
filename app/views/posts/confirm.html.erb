@@ -1,0 +1,42 @@
+<h1>店舗申請内容の確認</h1>
+
+<!-- 左側：画像 -->
+<div class="images-preview">
+  <% if @post.images.attached? %>
+    <% @post.images.each do |image| %>
+      <%= image_tag image, size: "100x100" %>
+    <% end %>
+  <% else %>
+    <%= image_tag "tempo.png", size: "200x200" %>
+  <% end %>
+</div>
+
+<!-- 右側：情報 -->
+<div class="post-info">
+  <h2><%= @post.name %></h2>
+  <p>住所：<%= @post.postal_code %> <%= @post.prefecture %> <%= @post.city %> <%= @post.address_detail %></p>
+  <p>店舗紹介：<%= @post.description %></p>
+
+  <h3>店舗情報</h3>
+  <p>営業時間：<%= @post.opening_time %> ～ <%= @post.closing_time %></p>
+  <p>定休日：<%= @post.holidays %></p>
+  <p>座席数：<%= @post.seating_capacity %></p>
+  <p>予算：<%= @post.budget %>円</p>
+</div>
+
+<!-- フォーム再送信 -->
+<%= form_with model: @post, url: posts_path, local: true do |f| %>
+  <% @post.attributes.each do |key, value| %>
+    <% if value.is_a?(Array) %>
+      <% value.each do |v| %>
+        <%= hidden_field_tag "post[#{key}][]", v %>
+      <% end %>
+    <% else %>
+      <%= hidden_field_tag "post[#{key}]", value %>
+    <% end %>
+  <% end %>
+
+  <%= f.submit "申請する" %>
+<% end %>
+
+<%= link_to "戻る", new_post_path, method: :get %>

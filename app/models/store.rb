@@ -1,5 +1,6 @@
 class Store < ApplicationRecord
   belongs_to :user, optional: true
+  belongs_to :post
 
   has_many :visits
   has_many :visitors, through: :visits, source: :user

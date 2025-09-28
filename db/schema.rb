@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_09_11_022611) do
+ActiveRecord::Schema.define(version: 2025_09_16_130212) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -106,6 +106,8 @@ ActiveRecord::Schema.define(version: 2025_09_11_022611) do
     t.boolean "is_owner"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "post_id"
+    t.index ["post_id"], name: "index_stores_on_post_id"
     t.index ["user_id"], name: "index_stores_on_user_id"
   end
 
@@ -142,6 +144,7 @@ ActiveRecord::Schema.define(version: 2025_09_11_022611) do
   add_foreign_key "comments", "users"
   add_foreign_key "favorites", "stores"
   add_foreign_key "favorites", "users"
+  add_foreign_key "stores", "posts"
   add_foreign_key "stores", "users"
   add_foreign_key "visits", "stores"
   add_foreign_key "visits", "users"

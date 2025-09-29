@@ -8,29 +8,38 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+      # リポジトリをチェックアウト
+      - uses: actions/checkout@v2
 
-    # Node.js をセットアップ
-    - uses: actions/setup-node@v3
-      with:
-        node-version: '16'
+      # Node.js をセットアップ
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
 
-    # Yarn をインストール
-    - name: Install Yarn
-      run: npm install -g yarn
+      # Yarn をインストール
+      - name: Install Yarn
+        run: npm install -g yarn
 
-    - name: Deploy
-      env:
-        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        USER_NAME: ${{ secrets.USER_NAME }}
-        HOST_NAME: ${{ secrets.HOST_NAME }}
-      run: |
-        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOST_NAME} 'cd hitorinomi &&
-        git pull origin main &&
-        ~/.rbenv/shims/bundle install &&
-        yarn install --check-files &&
-        ~/.rbenv/shims/bundle exec rails assets:precompile RAILS_ENV=production &&
-        ~/.rbenv/shims/bundle exec rails db:migrate RAILS_ENV=production &&
-        if [[ -e tmp/pids/puma.pid ]]; then sudo kill $(cat tmp/pids/puma.pid); echo kill puma process; fi &&
-        sudo systemctl restart puma'
+      # 秘密鍵をファイル化（base64 デコード）
+      - name: Write private key
+        run: |
+          echo "${{ secrets.PRIVATE_KEY_B64 }}" | base64 -d > private_key
+          chmod 600 private_key
+
+      # デプロイ処理
+      - name: Deploy
+        env:
+          USER_NAME: ${{ secrets.USER_NAME }}
+          HOST_NAME: ${{ secrets.HOST_NAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOST_NAME} '
+            cd hitorinomi &&
+            git pull origin main &&
+            ~/.rbenv/shims/bundle install &&
+            yarn install --check-files &&
+            ~/.rbenv/shims/bundle exec rails assets:precompile RAILS_ENV=production &&
+            ~/.rbenv/shims/bundle exec rails db:migrate RAILS_ENV=production &&
+            sudo systemctl restart puma
+          '
+
 

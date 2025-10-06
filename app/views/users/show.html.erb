@@ -1,12 +1,5 @@
 
-<% Rails.logger.info "🔥 LOADED VIEW FILE FROM: #{__FILE__}" %>
 <div class="profile-wrapper">
-
-<h1 style="color:red;">
-current_user: <%= current_user&.id.inspect %> / @user: <%= @user.id %>
-</h1>
-
-<h1 style="color: red;">クソ野郎</h1>
 
   <!-- 左サイドバー -->
   <div class="sidebar">
@@ -46,7 +39,7 @@ current_user: <%= current_user&.id.inspect %> / @user: <%= @user.id %>
   <!-- 登録内容編集ボタン（右上） -->
   <% if current_user&.id == @user.id %>
   <div class="edit-button-wrapper">
-    <%= link_to '登録内容編集てｓｔｔｔｔｔ', edit_user_path(@user), class: "btn btn-outline-dark edit-button" %>
+    <%= link_to '登録内容編集', edit_user_path(@user), class: "btn btn-outline-dark edit-button" %>
   </div>
 <% end %>
 
@@ -88,9 +81,6 @@ current_user: <%= current_user&.id.inspect %> / @user: <%= @user.id %>
       <%= link_to "退会する", user_path(@user), method: :delete, data: { confirm: "本当に退会しますか？" }, class: "text-danger" %>
     </div>
   <% end %>
-  
-
-  <h1 style="color: red;">これは本番のshowページ</h1>
   
   </div>
 </div>

@@ -1,7 +1,22 @@
+<% if @user.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= @user.errors.count %>件のエラーがあります:</h2>
+    <ul>
+      <% @user.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+
+
+
+
 <div class="form-container">
   <h2>新規会員登録</h2>
 
-  <%= form_with model: @user, local: true, html: { multipart: true }, class: "user-form" do |f| %>
+  <%= form_with(model: @user, url: signup_path, local: true, html: { multipart: true }, class: "user-form") do |f| %>
 
     <!-- 名前 -->
     <div class="field-row">
@@ -27,13 +42,13 @@
       <%= f.telephone_field :phone_number, placeholder: "09012345678", class: "input-field" %>
     </div>
 
-    <!-- 生年月日（単独） -->
+    <!-- 生年月日 -->
     <div class="field form-date">
       <%= f.label :birth_date, "生年月日", class: "field-label" %><br>
       <%= f.date_select :birth_date, start_year: Date.today.year - 100, end_year: Date.today.year, use_month_numbers: true %>
     </div>
     
-    <!-- ユーザー名（単独） -->
+    <!-- ユーザー名 -->
     <div class="field">
       <%= f.label :username, "ユーザー名", class: "field-label" %>
       <%= f.text_field :username, placeholder: "ユーザー名は公表されます", class: "input-field" %>
@@ -46,7 +61,6 @@
       <%= image_tag(@user.icon.attached? ? url_for(@user.icon) : 'icon.png', id: "icon-preview", class: "profile-preview") %>
     </div>
     
-
     <!-- プロフィール文 -->
     <div class="field">
       <%= f.label :profile, "プロフィール（任意）", class: "field-label" %>
@@ -83,3 +97,4 @@
     }
   }
 </script>
+

@@ -1,0 +1,39 @@
+ja:
+  errors:
+    format: "%{attribute}%{message}"
+    messages:
+      blank: "を入力してください"
+      too_short: "は%{count}文字以上で入力してください"
+      too_long: "は%{count}文字以内で入力してください"
+      confirmation: "が一致しません"
+      taken: "はすでに使用されています"
+      invalid: "は不正な値です"
+      not_a_number: "は数値で入力してください"
+      greater_than: "%{count}より大きい値にしてください"
+      less_than: "%{count}より小さい値にしてください"
+      greater_than_or_equal_to: "%{count}以上の値にしてください"
+      less_than_or_equal_to: "%{count}以下の値にしてください"
+      wrong_length: "は%{count}文字で入力してください"
+      other_than: "%{count}以外の値にしてください"
+      accepted: "を承認してください"
+      required: "を入力してください"
+      present: "は入力しないでください"
+      equal_to: "%{count}にしてください"
+      odd: "は奇数で入力してください"
+      even: "は偶数で入力してください"
+
+  activerecord:
+    attributes:
+      user:
+        last_name: "名字"
+        first_name: "名前"
+        email: "メールアドレス"
+        phone_number: "電話番号"
+        username: "ユーザー名"
+        password: "パスワード"
+        password_confirmation: "確認用パスワード"
+        birth_date: "生年月日"
+
+
+
+

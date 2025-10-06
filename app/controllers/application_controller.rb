@@ -3,6 +3,11 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def authenticate_user!
+    Rails.logger.debug "--- authenticate_user! 呼び出し ---"
+    redirect_to login_path, alert: "ログインしてください" unless current_user
+  end
+
   def current_user
     @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
   end

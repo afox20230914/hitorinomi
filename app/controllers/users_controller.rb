@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  before_action :authenticate_user!, only: [:show, :edit, :update]
+
   def new
     @user = User.new
   end
@@ -9,35 +11,23 @@ class UsersController < ApplicationController
       session[:user_id] = @user.id
       redirect_to user_path(@user), notice: "登録が完了しました"
     else
+      Rails.logger.info "NEW RENDER ERRORS: #{@user.errors.full_messages.inspect}"
       render :new
     end
   end
 
   def show
+    redirect_to login_path unless current_user
     @user = User.find(params[:id])
-  
-    # 来店履歴から「一番行く店」を抽出
+
     @most_visited_store = Store.joins(:visits)
-    .where(visits: { user_id: @user.id })
-    .group('stores.id')
-    .order('COUNT(visits.id) DESC')
-    .first
+      .where(visits: { user_id: @user.id })
+      .group('stores.id')
+      .order('COUNT(visits.id) DESC')
+      .first
 
-  
     @favorite_stores = @user.favorite_stores.order(created_at: :desc)
   end
-  
-
-  def visits
-    @user = User.find(params[:id])
-    @visits = @user.visits.includes(:store)
-  end
-
-  def favorite_stores
-    @user = User.find(params[:id])
-    @favorite_stores = @user.favorite_stores.order(created_at: :desc)
-  end
-  
 
   def comments
     @user = User.find(params[:id])
@@ -81,3 +71,4 @@ class UsersController < ApplicationController
     )
   end
 end
+

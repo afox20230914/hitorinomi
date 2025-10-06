@@ -59,7 +59,7 @@ gem 'dotenv-rails'
 # gem "devise"
 
 #gem "devise-i18n", "~> 1.15"
-gem "rails-i18n", "~> 7.0"
+gem "rails-i18n", "~> 6.0"
 
 gem "pg_search", "~> 2.3"
 

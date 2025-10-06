@@ -40,4 +40,13 @@
       <%= yield %>
     </main>
   </body>
+
+  <% if flash[:notice].present? %>
+  <p style="color: green;"><%= flash[:notice] %></p>
+<% end %>
+
+<% if flash[:alert].present? %>
+  <p style="color: red;"><%= flash[:alert] %></p>
+<% end %>
+
 </html>

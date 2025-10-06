@@ -1,4 +1,12 @@
+
+<% Rails.logger.info "🔥 LOADED VIEW FILE FROM: #{__FILE__}" %>
 <div class="profile-wrapper">
+
+<h1 style="color:red;">
+current_user: <%= current_user&.id.inspect %> / @user: <%= @user.id %>
+</h1>
+
+<h1 style="color: red;">クソ野郎</h1>
 
   <!-- 左サイドバー -->
   <div class="sidebar">
@@ -35,10 +43,14 @@
   <!-- メインエリア -->
   <div class="profile-main">
 
-    <!-- 登録内容編集ボタン（右上） -->
-    <div class="edit-button-wrapper">
-      <%= link_to '登録内容編集', edit_user_path(@user), class: "btn btn-outline-dark edit-button" %>
-    </div>
+  <!-- 登録内容編集ボタン（右上） -->
+  <% if current_user&.id == @user.id %>
+  <div class="edit-button-wrapper">
+    <%= link_to '登録内容編集てｓｔｔｔｔｔ', edit_user_path(@user), class: "btn btn-outline-dark edit-button" %>
+  </div>
+<% end %>
+
+
 
     <!-- ユーザーアイコン -->
     <div style="text-align: left;">
@@ -64,13 +76,21 @@
       <%= link_to "フォロワー一覧", followers_user_path(@user), class: "btn btn-outline-secondary" %>
       <%= link_to "来店履歴", visits_user_path(@user), class: "btn btn-outline-secondary" %>
       <%= link_to "コメント履歴", comments_user_path(@user), class: "btn btn-outline-secondary" %>
+      <% if current_user&.id == @user.id %>
       <%= link_to "申請内容一覧", applications_user_path(@user), class: "btn btn-outline-secondary" %>
+    <% end %>
+    
+    
     </div>
 
-    <!-- 退会ボタン -->
+    <% if current_user&.id == @user.id %>
     <div class="quit-button">
       <%= link_to "退会する", user_path(@user), method: :delete, data: { confirm: "本当に退会しますか？" }, class: "text-danger" %>
     </div>
+  <% end %>
+  
+
+  <h1 style="color: red;">これは本番のshowページ</h1>
+  
   </div>
 </div>
-

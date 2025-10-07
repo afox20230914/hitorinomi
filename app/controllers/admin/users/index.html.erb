@@ -1,0 +1,12 @@
+<div class="admin-user-controls">
+  <%= form_with url: admin_users_path, method: :get, local: true do %>
+    ソート：
+    <%= select_tag :sort, options_for_select([["名前順", "name"], ["登録日順", "date"]], params[:sort]), class: "sort-select" %>
+    <%= select_tag :direction, options_for_select([["昇順", "asc"], ["降順", "desc"]], params[:direction]), class: "sort-select" %>
+    <%= submit_tag "並び替え", class: "btn-sort" %>
+    
+    <%= text_field_tag :keyword, params[:keyword], placeholder: "ユーザー名で検索", class: "search-box" %>
+    <%= submit_tag "検索", class: "btn-search" %>
+  <% end %>
+</div>
+

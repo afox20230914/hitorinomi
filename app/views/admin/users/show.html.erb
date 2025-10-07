@@ -1,0 +1,92 @@
+<div class="admin-user-detail">
+
+  <!-- 基本情報 -->
+  <div class="user-header">
+    <%= image_tag(@user.icon.attached? ? url_for(@user.icon) : 'icon.png', class: "user-detail-icon") %>
+    <div class="user-detail-info">
+      <h2><%= @user.username %></h2>
+      <p>登録日：<%= @user.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+      <%= link_to "一般ページを開く", user_path(@user), target: "_blank", class: "btn-open" %>
+    </div>
+  </div>
+
+  <!-- ブロック情報 -->
+  <div class="user-section">
+    <h3>このユーザーがブロックしている</h3>
+    <% if @blocked_users.any? %>
+      <ul>
+        <% @blocked_users.each do |u| %>
+          <li><%= link_to u.username, admin_user_path(u) %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>該当なし</p>
+    <% end %>
+  </div>
+
+  <div class="user-section">
+    <h3>このユーザーをブロックしている</h3>
+    <% if @blocked_by_users.any? %>
+      <ul>
+        <% @blocked_by_users.each do |u| %>
+          <li><%= link_to u.username, admin_user_path(u) %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>該当なし</p>
+    <% end %>
+  </div>
+
+  <!-- コメント関連 -->
+  <div class="user-section">
+    <h3>削除されたコメント一覧（<%= @deleted_count %>件）</h3>
+    <% if @deleted_comments.any? %>
+      <% @deleted_comments.each do |c| %>
+        <div class="comment-card deleted">
+          <p><%= c.body %></p>
+          <p class="comment-time">投稿日時：<%= c.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+        </div>
+      <% end %>
+    <% else %>
+      <p>削除されたコメントはありません。</p>
+    <% end %>
+  </div>
+
+  <div class="user-section">
+    <h3>BADがGOODを上回るコメント</h3>
+    <% if @bad_comments.any? %>
+      <% @bad_comments.each do |c| %>
+        <div class="comment-card bad">
+          <p><%= c.body %></p>
+          <p class="comment-stats">GOOD：<%= c.goods_count %> ／ BAD：<%= c.bads_count %></p>
+        </div>
+      <% end %>
+    <% else %>
+      <p>該当コメントはありません。</p>
+    <% end %>
+  </div>
+
+  <!-- アカウント停止・解除申請 -->
+  <div class="user-section">
+    <h3>アカウント管理</h3>
+    <div class="suspension-form">
+      <%= form_with model: @suspension_request, url: admin_suspensions_path, local: true do |f| %>
+        <%= f.hidden_field :user_id, value: @user.id %>
+        <%= f.label :comment, "申請コメント（必須）" %><br>
+        <%= f.text_area :comment, rows: 3, required: true %><br>
+        <%= f.submit "停止申請", class: "btn-danger" %>
+      <% end %>
+    </div>
+
+    <div class="suspension-form">
+      <%= form_with model: @suspension_request, url: admin_suspensions_path, local: true do |f| %>
+        <%= f.hidden_field :user_id, value: @user.id %>
+        <%= f.label :comment, "申請コメント（必須）" %><br>
+        <%= f.text_area :comment, rows: 3, required: true %><br>
+        <%= f.submit "停止解除申請", class: "btn-safe" %>
+      <% end %>
+    </div>
+  </div>
+
+</div>
+

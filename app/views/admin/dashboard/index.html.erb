@@ -1,0 +1,107 @@
+<div class="adash wrap">
+
+  <!-- タブ -->
+  <div class="adash-tabs">
+    <a href="#" class="adash-tab is-active" data-target="#tl">タイムライン表示</a>
+    <a href="#" class="adash-tab"        data-target="#cat">カテゴリ別表示</a>
+  </div>
+
+  <!-- タイムライン -->
+  <section id="tl" class="adash-section is-active">
+    <% @timeline.each do |n| %>
+      <article class="adash-card">
+        <div class="card-icon">アイコン</div>
+
+        <div class="card-main">
+          <h3 class="card-title"><%= n.title %></h3>
+
+          <% if n.kind == :contact %>
+            <p class="card-snippet">
+              <%= truncate(strip_tags(n.snippet.to_s), length: 60) %><br>
+              <%= truncate(strip_tags(n.snippet.to_s), length: 120, omission: '')[60..] %>
+            </p>
+          <% else %>
+            <div class="card-row">
+              <div class="thumb-circle">image</div>
+              <div class="store-name"><%= n.store_name %></div>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="card-meta">
+          <div class="time"><%= n.created_at.strftime("%Y/%m/%d %H:%M") %></div>
+        </div>
+      </article>
+    <% end %>
+
+    <div class="adash-more">
+      <a href="#" class="more-btn"><span class="mini-icn">アイコン</span>もっと見る</a>
+    </div>
+  </section>
+
+  <!-- カテゴリ別 -->
+  <section id="cat" class="adash-section">
+    <h4 class="cat-title">お問い合わせ</h4>
+    <% @contacts.each do |c| %>
+      <article class="adash-card">
+        <div class="card-icon">アイコン</div>
+        <div class="card-main">
+          <h3 class="card-title">お問い合わせがありました</h3>
+          <p class="card-snippet"><%= truncate(strip_tags((c.try(:content)||c.try(:body)).to_s), length: 120) %></p>
+        </div>
+        <div class="card-meta">
+          <div class="time"><%= c.created_at.strftime("%Y/%m/%d %H:%M") %></div>
+        </div>
+      </article>
+    <% end %>
+
+    <h4 class="cat-title">新規店舗申請</h4>
+    <% @new_store_applications.each do |p| %>
+      <article class="adash-card">
+        <div class="card-icon">アイコン</div>
+        <div class="card-main">
+          <h3 class="card-title">新規店舗申請がありました</h3>
+          <div class="card-row">
+            <div class="thumb-circle">image</div>
+            <div class="store-name"><%= p.try(:store_name) || p.try(:title) || "店舗名" %></div>
+          </div>
+        </div>
+        <div class="card-meta">
+          <div class="time"><%= p.created_at.strftime("%Y/%m/%d %H:%M") %></div>
+        </div>
+      </article>
+    <% end %>
+
+    <h4 class="cat-title">店舗情報修正依頼</h4>
+    <% @store_corrections.each do |p| %>
+      <article class="adash-card">
+        <div class="card-icon">アイコン</div>
+        <div class="card-main">
+          <h3 class="card-title">店舗情報修正依頼がありました</h3>
+          <div class="card-row">
+            <div class="thumb-circle">image</div>
+            <div class="store-name"><%= p.try(:store_name) || p.try(:title) || "店舗名" %></div>
+          </div>
+        </div>
+        <div class="card-meta">
+          <div class="time"><%= p.created_at.strftime("%Y/%m/%d %H:%M") %></div>
+        </div>
+      </article>
+    <% end %>
+  </section>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.adash-tab').forEach(function(tab){
+      tab.addEventListener('click', function(e){
+        e.preventDefault();
+        document.querySelectorAll('.adash-tab').forEach(t => t.classList.remove('is-active'));
+        document.querySelectorAll('.adash-section').forEach(s => s.classList.remove('is-active'));
+        tab.classList.add('is-active');
+        document.querySelector(tab.dataset.target).classList.add('is-active');
+      });
+    });
+  });
+</script>
+

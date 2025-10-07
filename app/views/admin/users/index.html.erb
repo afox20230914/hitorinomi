@@ -1,0 +1,39 @@
+<div class="admin-users-page">
+
+  <h2>ユーザー一覧</h2>
+
+  <!-- 検索＆ソート -->
+  <div class="admin-users-controls">
+    <div class="sort-box">
+      <%= form_with url: admin_users_path, method: :get, local: true do |f| %>
+        <label>ソート：</label>
+        <%= select_tag :sort, options_for_select([["名前順", "name"], ["登録順", "created_at"]], @sort) %>
+        <%= select_tag :direction, options_for_select([["昇順", "asc"], ["降順", "desc"]], @direction) %>
+        <%= f.submit "並び替え", class: "btn-sort" %>
+      <% end %>
+    </div>
+
+    <div class="search-box">
+      <%= form_with url: admin_users_path, method: :get, local: true do |f| %>
+        <%= f.text_field :q, value: @q, placeholder: "ユーザー名で検索", class: "search-input" %>
+        <%= f.submit "検索", class: "btn-search" %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- ユーザーカード一覧 -->
+  <div class="admin-user-cards">
+    <% @users.each do |user| %>
+      <%= link_to admin_user_path(user), class: "user-card" do %>
+        <div class="card-content">
+          <%= image_tag(user.icon.attached? ? url_for(user.icon) : 'icon.png', class: "user-icon") %>
+          <div class="user-info">
+            <h3><%= user.username %></h3>
+            <p>登録日：<%= user.created_at.strftime("%Y-%m-%d") %></p>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+</div>

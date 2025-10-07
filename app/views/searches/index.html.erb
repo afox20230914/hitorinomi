@@ -1,0 +1,64 @@
+<div class="search-page">
+
+  <!-- 現在の検索キーワード -->
+  <% if params[:keyword].present? %>
+    <div class="search-header">
+      <h2 class="search-query">「<%= params[:keyword] %>」の検索結果</h2>
+    </div>
+  <% end %>
+
+  <!-- カテゴリボタン -->
+  <div class="search-category-buttons">
+  <%= link_to "店舗名", searches_path(keyword: params[:keyword], category: "store"),
+      class: "category-btn #{'active' if params[:category].nil? || params[:category] == 'store'}" %>
+
+  <%= link_to "タグ", searches_path(keyword: params[:keyword], category: "tag"),
+      class: "category-btn #{'active' if params[:category] == 'tag'}" %>
+
+  <%= link_to "ユーザー", searches_path(keyword: params[:keyword], category: "user"),
+      class: "category-btn #{'active' if params[:category] == 'user'}" %>
+
+  <%= link_to "コメント", searches_path(keyword: params[:keyword], category: "comment"),
+      class: "category-btn #{'active' if params[:category] == 'comment'}" %>
+</div>
+
+
+  <!-- 結果一覧 -->
+  <div class="search-results">
+    <% if @results.present? %>
+      <% @results.each do |result| %>
+        <div class="result-card">
+          <% if result.is_a?(Store) %>
+            <%= link_to store_path(result), class: "result-link" do %>
+              <%= image_tag(result.main_image_1.present? ? result.main_image_1 : 'tempo.png', class: "result-thumb") %>
+              <div class="result-info">
+                <p class="result-title"><%= result.name %></p>
+                <p class="result-meta"><%= [result.prefecture, result.city].compact.join(" ") %></p>
+              </div>
+            <% end %>
+
+          <% elsif result.is_a?(User) %>
+            <%= link_to user_path(result), class: "result-link" do %>
+              <%= image_tag(result.icon.attached? ? url_for(result.icon) : 'icon.png', class: "result-thumb") %>
+              <div class="result-info">
+                <p class="result-title"><%= result.username %></p>
+                <p class="result-meta">登録ユーザー</p>
+              </div>
+            <% end %>
+
+          <% elsif result.is_a?(Comment) %>
+            <%= link_to store_path(result.store), class: "result-link" do %>
+              <%= image_tag(result.store.main_image_1.present? ? result.store.main_image_1 : 'tempo.png', class: "result-thumb") %>
+              <div class="result-info">
+                <p class="result-title"><%= truncate(result.body, length: 60) %></p>
+                <p class="result-meta">投稿コメント</p>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="no-results">該当する結果はありませんでした。</p>
+    <% end %>
+  </div>
+</div>

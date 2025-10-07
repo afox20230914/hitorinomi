@@ -1,6 +1,16 @@
 class User < ApplicationRecord
+  # ActiveStorage
+  has_one_attached :icon
+
+  has_many :favorites, dependent: :destroy
+  has_many :favorite_stores, through: :favorites, source: :store
+  has_many :visits, dependent: :destroy
+
+
   # 英語デフォ検証を止める
   has_secure_password validations: false
+
+  attr_accessor :password_confirmation
 
   # 日本語メッセージで統一
   validates :last_name,  presence: { message: "を入力してください" },
@@ -43,4 +53,3 @@ class User < ApplicationRecord
     errors.add(:birth_date, "は20歳未満の方は登録できません") if birth_date > 20.years.ago.to_date
   end
 end
-

@@ -1,0 +1,6 @@
+<h2>店舗を検索する</h2>
+
+<%= form_with url: searches_path, method: :post, local: true do |f| %>
+  <%= f.text_field :keyword, placeholder: "店名・エリアなどで検索", class: "search-input" %>
+  <%= f.submit "検索", class: "search-btn" %>
+<% end %>

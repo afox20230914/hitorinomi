@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :authenticate_user!, only: [:show, :edit, :update]
+  before_action :authenticate_user!, only: [ :edit, :update]
 
   def new
     @user = User.new
@@ -17,7 +17,6 @@ class UsersController < ApplicationController
   end
 
   def show
-    redirect_to login_path unless current_user
     @user = User.find(params[:id])
 
     @most_visited_store = Store.joins(:visits)
@@ -29,6 +28,25 @@ class UsersController < ApplicationController
     @favorite_stores = @user.favorite_stores.order(created_at: :desc)
   end
 
+  def edit
+    @user = User.find(params[:id])
+    # 本人以外のアクセスはトップへ
+    redirect_to root_path unless current_user == @user
+  end
+  
+  def update
+    @user = User.find(params[:id])
+    redirect_to root_path and return unless current_user == @user
+  
+    if @user.update(user_params)
+      redirect_to user_path(@user), notice: "登録情報を更新しました"
+    else
+      render :edit
+    end
+  end
+  
+  
+
   def comments
     @user = User.find(params[:id])
     @comments = @user.comments
@@ -39,19 +57,24 @@ class UsersController < ApplicationController
     @applications = @user.applications
   end
 
+  # --- 退会確認ページ ---
   def withdraw
     @user = User.find(params[:id])
   end
 
+  # --- 退会実行処理 ---
   def deactivate
     @user = User.find(params[:id])
     if @user.update(is_deleted: true)
       reset_session
-      redirect_to root_path, notice: "退会処理が完了しました。ご利用ありがとうございました。"
+      redirect_to complete_withdraw_user_path(@user)
     else
-      flash[:alert] = "退会処理に失敗しました。"
       render :withdraw
     end
+  end
+
+  # --- 退会完了ページ ---
+  def complete_withdraw
   end
 
   private
@@ -71,4 +94,3 @@ class UsersController < ApplicationController
     )
   end
 end
-

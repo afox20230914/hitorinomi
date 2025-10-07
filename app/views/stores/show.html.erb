@@ -29,10 +29,23 @@
   <div class="store-header">
     <h1><%= @store.name %></h1>
     <div class="icon-row">
-      <span class="icon">[<%= @store.store_type %>]</span>
-      <span class="icon">[<%= @store.smoking_allowed %>]</span>
+    <span class="icon">[<%= @store.store_type %>]</span>
+    <span class="icon">[<%= @store.smoking_allowed %>]</span>
+  
+    <% if logged_in? %>
       <%= link_to "来店ボタン", visit_store_path(@store), method: :post, class: "visit-btn" %>
-    </div>
+  
+      <% if current_user.favorite_stores.include?(@store) %>
+        <%= button_to "お気に入り解除", unfavorite_store_path(@store),
+              method: :delete, class: "favorite-btn remove" %>
+      <% else %>
+        <%= button_to "お気に入り登録", favorite_store_path(@store),
+              method: :post, class: "favorite-btn add" %>
+      <% end %>
+    <% end %>
+  </div>
+  
+
     <p class="address"><%= [@store.postal_code, @store.prefecture, @store.city, @store.address_detail].join(' ') %></p>
     <p class="description"><%= simple_format(@store.description) %></p>
   </div>

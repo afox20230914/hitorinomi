@@ -78,7 +78,7 @@
 
     <% if current_user&.id == @user.id %>
     <div class="quit-button">
-      <%= link_to "退会する", user_path(@user), method: :delete, data: { confirm: "本当に退会しますか？" }, class: "text-danger" %>
+    <%= link_to "退会する", withdraw_user_path(@user), style: "color: red;" %>
     </div>
   <% end %>
   

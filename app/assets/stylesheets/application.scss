@@ -1,6 +1,7 @@
 @import "sessions";
 @import "users";
 @import "store";
+@import "searches";
 
 .header {
   display: flex;
@@ -61,4 +62,77 @@
 .global-header {
   position: relative;
   z-index: 1000;
+}
+
+.flash-signup {
+  position: fixed;
+  top: 100px;               /* ← メニューと被らないように下げた */
+  left: 30px;
+  color: #008000;
+  font-size: 2rem;
+  font-weight: 900;
+  background: #e6ffe6;
+  padding: 15px 28px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 1000;
+  animation: flash-pop 0.6s ease-out, flash-glow 2s ease-in-out infinite alternate, fadeout 1s ease-in forwards 4s;
+}
+
+/* 拡大フェードイン */
+@keyframes flash-pop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  70%  { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ゆるく発光 */
+@keyframes flash-glow {
+  0%   { box-shadow: 0 0 10px rgba(0,255,0,0.3); }
+  100% { box-shadow: 0 0 25px rgba(0,255,0,0.8); }
+}
+
+/* 5秒後にフェードアウト */
+@keyframes fadeout {
+  to { opacity: 0; visibility: hidden; transform: translateY(-10px); }
+}
+
+.header {
+  background-color: #b50000;
+  color: white;
+  padding: 10px 30px;
+}
+
+.header-center {
+  flex: 1;
+  text-align: center;
+}
+
+.header-search-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-search-input {
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: none;
+  width: 220px;
+  font-size: 0.95rem;
+}
+
+.header-search-button {
+  background-color: #ffcc00;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 12px;
+  font-weight: bold;
+  color: #222;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.header-search-button:hover {
+  background-color: #ffe066;
 }

@@ -4,8 +4,12 @@ class ApplicationController < ActionController::Base
   private
 
   def authenticate_user!
-    Rails.logger.debug "--- authenticate_user! 呼び出し ---"
-    redirect_to login_path, alert: "ログインしてください" unless current_user
+    unless current_user
+      # 元のURLを保持
+      session[:return_to] = request.fullpath
+      flash[:alert] = "ログインしてください"
+      redirect_to login_path
+    end
   end
 
   def current_user

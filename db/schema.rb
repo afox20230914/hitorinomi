@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_09_16_130212) do
+ActiveRecord::Schema.define(version: 2025_10_07_122239) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.bigint "record_id", null: false
-    t.bigint "blob_id", null: false
+    t.integer "record_id", null: false
+    t.integer "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
@@ -35,9 +35,16 @@ ActiveRecord::Schema.define(version: 2025_09_16_130212) do
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
-    t.bigint "blob_id", null: false
+    t.integer "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "administrators", force: :cascade do |t|
+    t.string "email"
+    t.string "password_digest"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "comments", force: :cascade do |t|
@@ -48,8 +55,17 @@ ActiveRecord::Schema.define(version: 2025_09_16_130212) do
     t.integer "bad_count", default: 0
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "deleted"
     t.index ["store_id"], name: "index_comments_on_store_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "contacts", force: :cascade do |t|
+    t.string "name"
+    t.string "email"
+    t.text "content"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "favorites", force: :cascade do |t|
@@ -78,6 +94,7 @@ ActiveRecord::Schema.define(version: 2025_09_16_130212) do
     t.boolean "is_owner"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "status"
   end
 
   create_table "stores", force: :cascade do |t|
@@ -129,13 +146,11 @@ ActiveRecord::Schema.define(version: 2025_09_16_130212) do
   end
 
   create_table "visits", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "store_id", null: false
+    t.integer "user_id"
+    t.integer "store_id"
     t.datetime "visited_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["store_id"], name: "index_visits_on_store_id"
-    t.index ["user_id"], name: "index_visits_on_user_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -146,6 +161,4 @@ ActiveRecord::Schema.define(version: 2025_09_16_130212) do
   add_foreign_key "favorites", "users"
   add_foreign_key "stores", "posts"
   add_foreign_key "stores", "users"
-  add_foreign_key "visits", "stores"
-  add_foreign_key "visits", "users"
 end

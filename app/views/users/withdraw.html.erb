@@ -1,8 +1,12 @@
-<h2>退会確認</h2>
-<p><%= @user.username %>さん、本当に退会しますか？</p>
+<div style="text-align:center; margin-top:150px;">
+  <h2 style="font-size:1.8rem; margin-bottom:40px;">本当に退会しますか？</h2>
 
-<%= form_with model: @user, url: deactivate_user_path(@user), method: :patch do %>
-  <%= submit_tag "退会する", data: { confirm: "本当に退会しますか？" }, class: "btn alert" %>
-<% end %>
+  <div style="display:flex; justify-content:center; gap:40px;">
+    <%= button_to "はい", deactivate_user_path(@user),
+          method: :patch,
+          style: "background-color:#d9534f; color:#fff; border:none; padding:14px 60px; font-size:1.3rem; border-radius:8px; cursor:pointer;" %>
 
-<%= link_to "キャンセル", user_path(@user), class: "btn" %>
+    <%= link_to "いいえ", user_path(@user),
+          style: "background-color:#28a745; color:#fff; text-decoration:none; padding:14px 60px; font-size:1.3rem; border-radius:8px; display:inline-block;" %>
+  </div>
+</div>

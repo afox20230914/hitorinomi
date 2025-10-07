@@ -9,15 +9,22 @@
   </head>
 
   <body>
-  <header class="header" style="z-index: 999; position: relative;">
-  <!-- ロゴ（左寄せ） -->
+  <header class="header" style="z-index: 999; position: relative; display: flex; align-items: center; justify-content: space-between;">
+  <!-- 左：ロゴ -->
   <div class="header-left">
     <%= link_to root_path do %>
       <%= image_tag 'logowhite.png', alt: 'ヒトリ呑み', class: 'site-logo' %>
     <% end %>
   </div>
 
-  <!-- ナビゲーション（右寄せ） -->
+  <!-- 中央：検索フォーム -->
+  <%= form_with url: searches_path, method: :get, local: true, class: "header-search-form" do |f| %>
+    <%= f.text_field :keyword, placeholder: "検索", value: params[:keyword], class: "header-search-input" %>
+    <%= f.submit "検索", class: "header-search-button" %>
+  <% end %>
+  
+
+  <!-- 右：ナビゲーション -->
   <nav class="header-right">
     <% if logged_in? %>
       <%= link_to "マイページ", user_path(current_user) %>
@@ -36,17 +43,20 @@
 </header>
 
 
+
+    <% if flash[:notice].present? %>
+    <% if flash[:notice].to_s.match?(/登録が完了|登録情報を更新|お気に入り|来店/) %>
+      <div class="flash-notice flash-signup"><%= flash[:notice] %></div>
+    <% else %>
+      <div class="flash-notice"><%= flash[:notice] %></div>
+    <% end %>
+  <% elsif flash[:alert].present? %>
+    <div class="flash-alert"><%= flash[:alert] %></div>
+  <% end %>
+  
     <main style="padding: 20px;">
       <%= yield %>
     </main>
   </body>
-
-  <% if flash[:notice].present? %>
-  <p style="color: green;"><%= flash[:notice] %></p>
-<% end %>
-
-<% if flash[:alert].present? %>
-  <p style="color: red;"><%= flash[:alert] %></p>
-<% end %>
-
 </html>
+

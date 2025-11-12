@@ -1,0 +1,89 @@
+<%# app/views/admin/posts/index.html.erb %>
+<%
+  posts = (@posts || Post.all)
+  posts = posts.where(status: "公開前")
+
+  if params[:q].present?
+    q = "%#{params[:q]}%"
+    posts = posts.where("name LIKE ?", q)
+  end
+
+  case params[:sort]
+  when "created_desc" then posts = posts.order(created_at: :desc)
+  when "created_asc"  then posts = posts.order(created_at: :asc)
+  when "name_asc"     then posts = posts.order(name: :asc)
+  when "name_desc"    then posts = posts.order(name: :desc)
+  else                     posts = posts.order(created_at: :desc)
+  end
+%>
+
+<div style="max-width:1080px;margin:0 auto;padding:20px;">
+
+  <%# ===== 検索／ソート（上部中央） ===== %>
+  <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-bottom:16px;">
+    <%= form_with url: admin_posts_path, method: :get, local: true, html: { style: "display:flex;gap:12px;align-items:center;" } do %>
+      <input type="text" name="q" value="<%= params[:q] %>" placeholder="店舗名で検索"
+             style="min-width:360px;padding:10px 12px;border:1px solid #ccc;border-radius:8px;">
+      <select name="sort" onchange="this.form.submit()" style="padding:10px 12px;border:1px solid #ccc;border-radius:8px;">
+        <option value="created_desc" <%= "selected" if params[:sort].to_s == "created_desc" || params[:sort].blank? %>>作成日時（新しい順）</option>
+        <option value="created_asc"  <%= "selected" if params[:sort].to_s == "created_asc" %>>作成日時（古い順）</option>
+        <option value="name_asc"     <%= "selected" if params[:sort].to_s == "name_asc" %>>店舗名（昇順）</option>
+        <option value="name_desc"    <%= "selected" if params[:sort].to_s == "name_desc" %>>店舗名（降順）</option>
+      </select>
+      <button type="submit" style="padding:10px 16px;background:#333;color:#fff;border:none;border-radius:8px;cursor:pointer;">検索</button>
+    <% end %>
+  </div>
+
+  <%# ===== 横長カード一覧 ===== %>
+  <div style="display:flex;flex-direction:column;gap:14px;">
+    <% posts.each do |post| %>
+      <%# 未読判定：admin_read=false / read_at=nil / checked=false のいずれかがあれば未読扱いにする（無ければ常に既読） %>
+      <% unread =
+           (post.respond_to?(:admin_read) && !post.admin_read) ||
+           (post.respond_to?(:read_at)    && post.read_at.nil?) ||
+           (post.respond_to?(:checked)    && !post.checked) %>
+
+      <% days_ago = (Date.current - post.created_at.to_date).to_i %>
+      <% days_label = days_ago <= 0 ? "今日" : "#{days_ago}日前" %>
+
+      <%= link_to admin_post_path(post), style: "text-decoration:none;color:inherit;" do %>
+        <div style="display:flex;gap:16px;align-items:stretch;background:#fff;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.06);padding:10px;">
+        <%# --- サムネ（左） --- %>
+        <div style="flex:0 0 140px;height:100px;border-radius:10px;overflow:hidden;background:#fafafa;display:flex;align-items:center;justify-content:center;">
+          <% if post.respond_to?(:images) && post.images.attached? %>
+            <%= image_tag post.images.first.variant(resize_to_fit: [120, 80]),
+                          alt: "#{post.name} メイン画像",
+                          style: "max-width:120px;max-height:80px;object-fit:contain;display:block;" %>
+          <% elsif post.respond_to?(:store) && post.store&.respond_to?(:main_image_1) && post.store.main_image_1.attached? %>
+            <%= image_tag post.store.main_image_1.variant(resize_to_fit: [120, 80]),
+                          alt: "#{post.name} メイン画像",
+                          style: "max-width:120px;max-height:80px;object-fit:contain;display:block;" %>
+          <% else %>
+            <%= image_tag "tempo.png",
+                          alt: "No Image",
+                          style: "max-width:100px;max-height:80px;opacity:.8;object-fit:contain;display:block;" %>
+          <% end %>
+        </div>       
+          <%# --- 本文（右） --- %>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;justify-content:center;">
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:#666;">
+              <span>作成: <%= l(post.created_at, format: :short) rescue post.created_at.to_s(:db) %>（<%= days_label %>）</span>
+              <span>／ ステータス: <%= post.status %></span>
+              <% if unread %>
+                <span style="margin-left:8px;padding:2px 8px;background:#b50000;color:#fff;border-radius:999px;font-weight:700;font-size:.75rem;">未読</span>
+              <% end %>
+            </div>
+            <div style="font-weight:800;font-size:1.1rem;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              <%= post.name %>
+            </div>
+            <%# 追加情報が必要ならここに行を増やす %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if posts.blank? %>
+    <div style="text-align:center;color:#777;padding:40px 0;">該当する「公開前」の投稿がありません。</div>
+  <% end %>
+</div>

@@ -1,19 +1,8 @@
 class ApplicationController < ActionController::Base
   helper_method :current_user, :logged_in?
 
-  private
-
-  def authenticate_user!
-    unless current_user
-      # 元のURLを保持
-      session[:return_to] = request.fullpath
-      flash[:alert] = "ログインしてください"
-      redirect_to login_path
-    end
-  end
-
   def current_user
-    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
+    @current_user ||= User.find_by(id: session[:user_id])
   end
 
   def logged_in?
@@ -21,9 +10,12 @@ class ApplicationController < ActionController::Base
   end
 
   def require_login
-    unless logged_in?
-      flash[:alert] = "ログインしてください"
-      redirect_to login_path
+    return if logged_in?
+
+    respond_to do |f|
+      f.json { render json: { error: 'login_required' }, status: :unauthorized }
+      f.html { redirect_to login_path, alert: 'ログインしてください' }
     end
   end
 end
+

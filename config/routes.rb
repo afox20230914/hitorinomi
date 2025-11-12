@@ -1,77 +1,121 @@
+# config/routes.rb （全文置換）
+
 Rails.application.routes.draw do
-# -----------------------------
-# 管理者用ルート
-# -----------------------------
-namespace :admin do
-  root to: "dashboard#index" 
-  get    'login',  to: 'sessions#new'
-  post   'login',  to: 'sessions#create'
-  delete 'logout', to: 'sessions#destroy'
+  # -----------------------------
+  # 管理者用ルート
+  # -----------------------------
+  namespace :admin do
+    root to: "dashboard#index"
+    get    'login',  to: 'sessions#new'
+    post   'login',  to: 'sessions#create'
+    delete 'logout', to: 'sessions#destroy'
 
-  # 各管理リソース
-  resources :users,    only: [:index, :show, :destroy]
-  resources :stores,   only: [:index, :show, :destroy]
-  resources :comments, only: [:index, :destroy]
-  resources :posts,    only: [:index, :show, :destroy]
-  resources :contacts, only: [:index, :show, :destroy]
-  resources :suspensions, only: [:create]# アカウント停止処置用
-end
-
-  
+    resources :users,    only: [:index, :show, :destroy]
+    resources :stores,   only: [:index, :show, :edit, :update, :destroy]
+    resources :comments, only: [:index, :destroy]
+    resources :posts,    only: [:index, :show, :destroy] do
+      member do
+        post :approve
+      end
+    end
+    resources :contacts,    only: [:index, :show, :destroy]
+    resources :suspensions, only: [:create]
+  end
 
   # -----------------------------
-  # 一般ユーザー用ルート（既存）
+  # 一般ユーザー用ルート
   # -----------------------------
   root 'homes#top'
-  get '/login', to: 'sessions#new'
-  post '/login', to: 'sessions#create'
+
+  # 認証
+  get    '/login',  to: 'sessions#new'
+  post   '/login',  to: 'sessions#create'
   delete '/logout', to: 'sessions#destroy'
-  get '/signup', to: 'users#new', as: 'signup'
+
+  # 会員登録
+  get  '/signup', to: 'users#new', as: 'signup'
   post '/signup', to: 'users#create'
+
+  # お問い合わせ
   get '/contact', to: 'contacts#new'
 
-  resources :stores, only: [:index, :show] do
-    member do
-      post 'visit', to: 'visits#create'
-      post 'favorite', to: 'favorites#create'
-      delete 'unfavorite', to: 'favorites#destroy'
-      get 'interior_images'
-      get 'exterior_images'
-      get 'food_images'
-      get 'menu_images'
+  # -----------------------------
+  # フォロー・通知関連
+  # -----------------------------
+  resources :notifications, only: [:index, :update] do
+    collection do
+      post :create_follow_request
     end
-    resources :comments, only: [:create]
-  end
-
-  resources :comments, only: [] do
     member do
-      post 'good'
-      post 'bad'
+      patch :approve_follow_request
+      patch :reject_follow_request
     end
   end
 
+  # -----------------------------
+  # ユーザー関連
+  # -----------------------------
   resources :users, only: [:show, :new, :create, :edit, :update] do
-    get :followers, on: :member
-    get :follows, on: :member
-    get :visits, on: :member
-    get :comments, on: :member
-    get :applications, on: :member
-    get :favorite_stores, on: :member
-    get :withdraw, on: :member
-    patch :deactivate, on: :member
+    member do
+      get :followers
+      get :follows
+      get :visits
+      get :comments
+      get :applications
+      get :favorite_stores
+      get :withdraw
+      patch :deactivate
+      get :complete_withdraw
+      delete :unfollow
+    end
   end
 
-  resources :searches, only: [:index]
-  get '/search', to: 'searches#index', as: 'search'
-  get '/users/:id/complete_withdraw', to: 'users#complete_withdraw', as: 'complete_withdraw_user'
+  # ログイン中ユーザー用ショートカット
+  get '/followers', to: redirect { |_, req|
+    user_id = req.session[:user_id]
+    user_id ? "/users/#{user_id}/followers" : '/login'
+  }
 
+  # -----------------------------
+  # 店舗関連
+  # -----------------------------
+  resources :favorites, only: [:create, :destroy]
+
+  resources :stores, only: [:index, :show] do
+    post :visit, on: :member, to: 'visits#create'
+
+    get :interior_images, on: :member
+    get :exterior_images, on: :member
+    get :food_images,     on: :member
+    get :menu_images,     on: :member
+
+    resources :comments, only: [:create, :destroy] do
+      member do
+        post :good
+        post :bad
+      end
+    end
+  end
+
+  resources :visits, only: [:index]
+
+  # -----------------------------
+  # 通報機能
+  # -----------------------------
+  resources :reports, only: [:new, :create]
+
+  # -----------------------------
+  # 検索機能
+  # -----------------------------
+  resources :searches, only: [:index]
+
+  # -----------------------------
+  # 投稿（申請フロー）
+  # -----------------------------
   resources :posts, only: [:new, :create] do
     collection do
-      post :confirm
-      post :complete
+      post  :confirm
+      patch :confirm   # ← PATCH /posts/confirm も許可
     end
   end
-
-  resources :notifications, only: [:index]
-  resources :followers, only: [:index]
 end

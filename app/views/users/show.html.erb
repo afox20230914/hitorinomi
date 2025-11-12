@@ -1,4 +1,3 @@
-
 <div class="profile-wrapper">
 
   <!-- 左サイドバー -->
@@ -36,14 +35,53 @@
   <!-- メインエリア -->
   <div class="profile-main">
 
-  <!-- 登録内容編集ボタン（右上） -->
-  <% if current_user&.id == @user.id %>
-  <div class="edit-button-wrapper">
-    <%= link_to '登録内容編集', edit_user_path(@user), class: "btn btn-outline-dark edit-button" %>
-  </div>
-<% end %>
+  <!-- ✅ フォロー申請／解除ボタン（右上） -->
+  <% if logged_in? && current_user != @user %>
+    <div class="follow-request-area" style="position:absolute; top:40px; right:60px;">
+  
+      <% if current_user.following.include?(@user) && @user.following.include?(current_user) %>
+        <!-- ✅ 相互フォロー中：フォロー解除ボタン -->
+        <%= button_to unfollow_user_path(@user),
+              method: :delete,
+              data: { confirm: "このユーザーのフォローを解除します。よろしいですか？" },
+              class: "follow-request-btn",
+              style: "background:#777; color:#fff; border:none; border-radius:12px;
+                      padding:20px 30px; font-size:20px; font-weight:bold; display:flex;
+                      align-items:center; gap:12px; cursor:pointer;" do %>
+  
+          <div style="display:flex; flex-direction:column; line-height:1.2; text-align:left;">
+            <span>フォローを</span>
+            <span>解除する</span>
+          </div>
+          <%= image_tag "sakurachiru.png", alt: "フォロー解除", style: "width:100px; height:auto; display:block;" %>
+        <% end %>
+  
+      <% else %>
+        <!-- ✅ 未フォロー：フォロー申請ボタン -->
+        <%= button_to create_follow_request_notifications_path,
+              params: { target_user_id: @user.id },
+              method: :post,
+              class: "follow-request-btn",
+              style: "background:#b50000; color:#fff; border:none; border-radius:12px;
+                      padding:20px 30px; font-size:20px; font-weight:bold; display:flex;
+                      align-items:center; gap:12px; cursor:pointer;" do %>
+  
+          <div style="display:flex; flex-direction:column; line-height:1.2; text-align:left;">
+            <span>フォロー</span>
+            <span>申請する</span>
+          </div>
+          <%= image_tag "followshinsei.png", alt: "フォロー申請", style: "width:100px; height:auto; display:block;" %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
 
-
+    <!-- 登録内容編集ボタン（本人のみ右上） -->
+    <% if current_user&.id == @user.id %>
+      <div class="edit-button-wrapper">
+        <%= link_to '登録内容編集', edit_user_path(@user), class: "btn btn-outline-dark edit-button" %>
+      </div>
+    <% end %>
 
     <!-- ユーザーアイコン -->
     <div style="text-align: left;">
@@ -53,7 +91,6 @@
         <%= image_tag "icon.png", class: "profile-icon" %>
       <% end %>
     </div>
-    
 
     <!-- ユーザー名 -->
     <div class="profile-username"><%= @user.username %></div>
@@ -70,17 +107,15 @@
       <%= link_to "来店履歴", visits_user_path(@user), class: "btn btn-outline-secondary" %>
       <%= link_to "コメント履歴", comments_user_path(@user), class: "btn btn-outline-secondary" %>
       <% if current_user&.id == @user.id %>
-      <%= link_to "申請内容一覧", applications_user_path(@user), class: "btn btn-outline-secondary" %>
-    <% end %>
-    
-    
+        <%= link_to "申請内容一覧", applications_user_path(@user), class: "btn btn-outline-secondary" %>
+      <% end %>
     </div>
 
     <% if current_user&.id == @user.id %>
-    <div class="quit-button">
-    <%= link_to "退会する", withdraw_user_path(@user), style: "color: red;" %>
-    </div>
-  <% end %>
-  
+      <div class="quit-button">
+        <%= link_to "退会する", withdraw_user_path(@user), style: "color: red;" %>
+      </div>
+    <% end %>
+
   </div>
 </div>

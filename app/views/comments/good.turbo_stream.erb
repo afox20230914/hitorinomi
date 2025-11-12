@@ -1,0 +1,16 @@
+<div class="vote-section" data-store-id="<%= @store.id %>" data-comment-id="<%= comment.id %>">
+  <button
+    class="score good-btn <%= 'active' if current_user&.votes&.exists?(comment: comment, vote_type: 'good') %>"
+    data-type="good">
+    👍 GOOD: <span class="good-count"><%= comment.good_count %></span>
+  </button>
+
+  <button
+    class="score bad-btn <%= 'active' if current_user&.votes&.exists?(comment: comment, vote_type: 'bad') %>"
+    data-type="bad">
+    👎 BAD: <span class="bad-count"><%= comment.bad_count %></span>
+  </button>
+
+  <%= link_to "このコメントを報告する", new_report_path(comment_id: comment.id), class: "report-link" %>
+</div>
+

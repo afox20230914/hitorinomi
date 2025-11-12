@@ -1,21 +1,31 @@
+/* =========================================
+   application.scss（統合済み・構文保証版）
+   ========================================= */
+
+/* --- 他スタイルの読み込み --- */
 @import "sessions";
 @import "users";
 @import "store";
 @import "searches";
+@import "notifications";
+
+/* =========================================
+   共通ヘッダー
+   ========================================= */
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #d10000;
+  background-color: #b50000;
   padding: 10px 20px;
-  position: fixed;      // ←★追加
-  top: 0;               // ←★追加
-  left: 0;              // ←★追加
-  width: 100%;          // ←★追加
-  z-index: 1000;        // ←★動画より前に表示
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  color: #fff;
 }
-
 
 .header-left .site-logo {
   height: 50px;
@@ -29,80 +39,18 @@
 
 .header-right a {
   margin-left: 20px;
-  color: white;
+  color: #fff;
   text-decoration: none;
   font-weight: bold;
+  transition: 0.2s;
 }
 
-.sidebar {
-  width: 20%;
-  float: left;
+.header-right a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
 }
 
-.main-content {
-  width: 60%;
-  float: left;
-  padding: 20px;
-}
-
-.user-icon {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-}
-
-.actions .btn {
-  display: inline-block;
-  margin: 8px;
-  padding: 10px 20px;
-  background: #eee;
-  border: 1px solid #ccc;
-}
-
-.global-header {
-  position: relative;
-  z-index: 1000;
-}
-
-.flash-signup {
-  position: fixed;
-  top: 100px;               /* ← メニューと被らないように下げた */
-  left: 30px;
-  color: #008000;
-  font-size: 2rem;
-  font-weight: 900;
-  background: #e6ffe6;
-  padding: 15px 28px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  z-index: 1000;
-  animation: flash-pop 0.6s ease-out, flash-glow 2s ease-in-out infinite alternate, fadeout 1s ease-in forwards 4s;
-}
-
-/* 拡大フェードイン */
-@keyframes flash-pop {
-  0%   { transform: scale(0.7); opacity: 0; }
-  70%  { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(1);   opacity: 1; }
-}
-
-/* ゆるく発光 */
-@keyframes flash-glow {
-  0%   { box-shadow: 0 0 10px rgba(0,255,0,0.3); }
-  100% { box-shadow: 0 0 25px rgba(0,255,0,0.8); }
-}
-
-/* 5秒後にフェードアウト */
-@keyframes fadeout {
-  to { opacity: 0; visibility: hidden; transform: translateY(-10px); }
-}
-
-.header {
-  background-color: #b50000;
-  color: white;
-  padding: 10px 30px;
-}
-
+/* --- 検索エリア --- */
 .header-center {
   flex: 1;
   text-align: center;
@@ -136,3 +84,138 @@
 .header-search-button:hover {
   background-color: #ffe066;
 }
+
+/* =========================================
+   レイアウト構成
+   ========================================= */
+
+.sidebar {
+  width: 20%;
+  float: left;
+}
+
+.main-content {
+  width: 60%;
+  float: left;
+  padding: 20px;
+}
+
+/* =========================================
+   ユーザーアイコン・アクション
+   ========================================= */
+
+.user-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.actions .btn {
+  display: inline-block;
+  margin: 8px;
+  padding: 10px 20px;
+  background: #eee;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* =========================================
+   グローバルヘッダー／通知
+   ========================================= */
+
+.global-header {
+  position: relative;
+  z-index: 1000;
+}
+
+/* --- フラッシュメッセージ（登録完了など） --- */
+.flash-signup {
+  position: fixed;
+  top: 100px;
+  left: 30px;
+  color: #008000;
+  font-size: 2rem;
+  font-weight: 900;
+  background: #e6ffe6;
+  padding: 15px 28px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  animation: flash-pop 0.6s ease-out,
+             flash-glow 2s ease-in-out infinite alternate,
+             fadeout 1s ease-in forwards 4s;
+}
+
+/* 拡大フェードイン */
+@keyframes flash-pop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  70%  { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ゆるく発光 */
+@keyframes flash-glow {
+  0%   { box-shadow: 0 0 10px rgba(0, 255, 0, 0.3); }
+  100% { box-shadow: 0 0 25px rgba(0, 255, 0, 0.8); }
+}
+
+/* 5秒後にフェードアウト */
+@keyframes fadeout {
+  to { opacity: 0; visibility: hidden; transform: translateY(-10px); }
+}
+
+/* --- 一時モーダル（GOOD/BAD・登録完了通知など統一） --- */
+.flash-modal {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(40, 40, 40, 0.9);
+  color: #fff;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  z-index: 9999;
+
+  &.visible {
+    opacity: 1;
+  }
+
+  &.hidden {
+    display: none;
+  }
+}
+
+.flash-message {
+  text-align: center;
+  font-weight: bold;
+  padding: 10px 0;
+  margin-bottom: 10px;
+  color: #fff;
+}
+.flash-message.notice {
+  background-color: #4caf50;
+}
+.flash-message.alert {
+  background-color: #f44336;
+}
+
+.score { border: none; padding: 6px 12px; border-radius:6px; font-weight:700; cursor:pointer; }
+.score.active { background: #4caf50; color: #fff; }
+.score.inactive { background: #f1f1f1; color: #999; }
+.score.good-btn.active { background: #2e7d32; }
+.score.bad-btn.active  { background: #c62828; }
+
+/* === 評価ボタンは常にクリック可能に強制 === */
+.vote-section button.score {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+/* クリック不能を強制しない（前の none を打ち消す） */
+.vote-section button.inactive { pointer-events: auto; }

@@ -1,0 +1,16 @@
+<div id="vote-section-<%= comment.id %>" class="vote-section">
+  <%= button_to "👍 GOOD: #{comment.good_count}",
+                good_store_comment_path(comment.store, comment),
+                method: :post,
+                data: { turbo_stream: true },
+                class: "score good-btn #{'active' if current_user&.votes&.exists?(comment: comment, vote_type: 'good')}" %>
+
+  <%= button_to "👎 BAD: #{comment.bad_count}",
+                bad_store_comment_path(comment.store, comment),
+                method: :post,
+                data: { turbo_stream: true },
+                class: "score bad-btn #{'active' if current_user&.votes&.exists?(comment: comment, vote_type: 'bad')}" %>
+
+  <span class="vote-message flash-inline"><%= message %></span>
+  <%= link_to "このコメントを報告する", new_report_path(comment_id: comment.id), class: "report-link" %>
+</div>

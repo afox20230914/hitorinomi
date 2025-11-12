@@ -1,0 +1,11 @@
+<turbo-stream target="vote-section-<%= @comment.id %>">
+  <template>
+    <%= render partial: "stores/vote_section", locals: { comment: @comment } %>
+  </template>
+</turbo-stream>
+
+<turbo-stream target="vote-message-<%= @comment.id %>">
+  <template>
+    <span class="vote-flash"><%= @message %></span>
+  </template>
+</turbo-stream>

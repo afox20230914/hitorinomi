@@ -57,6 +57,27 @@ class UsersController < ApplicationController
     @applications = @user.applications
   end
 
+  def followers
+    load_follow_lists
+    @tab = :followers            # ← どっちのタブかを明示
+    render :follows              # ← ビューは1枚に統一
+  end
+
+  def follows
+    load_follow_lists
+    @tab = :following            # ← どっちのタブかを明示
+  end
+
+  def unfollow
+    user = User.find(params[:id])
+    current_user.following.destroy(user)
+    redirect_to user_path(user), notice: "フォローを解除しました。"
+  end
+  
+  
+  
+
+
   # --- 退会確認ページ ---
   def withdraw
     @user = User.find(params[:id])
@@ -92,5 +113,11 @@ class UsersController < ApplicationController
       :profile,
       :icon
     )
+  end
+
+  def load_follow_lists
+    @user       = User.find(params[:id])
+    @followers  = @user.followers
+    @following  = @user.following
   end
 end

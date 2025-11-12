@@ -1,0 +1,110 @@
+<div class="notifications-page" style="text-align:center; max-width:800px; margin:0 auto;">
+
+  <!-- ページタイトル -->
+  <div class="notifications-header" style="margin-bottom:20px;">
+    <h2 class="notifications-title" style="font-size:1.8rem; font-weight:bold;">通知一覧</h2>
+  </div>
+
+  <!-- ✅ カテゴリタブ -->
+  <div class="notifications-category-buttons" style="display:flex; justify-content:center; gap:10px; margin-bottom:30px;">
+    <%= link_to "すべての通知", notifications_path,
+        class: "category-btn #{'active' if params[:category].blank?}" %>
+
+    <%= link_to "来店通知", notifications_path(category: "visit"),
+        class: "category-btn #{'active' if params[:category] == 'visit'}" %>
+
+    <%= link_to "フォロー申請", notifications_path(category: "follow_request"),
+        class: "category-btn #{'active' if params[:category] == 'follow_request'}" %>
+
+    <%= link_to "コメントGOOD", notifications_path(category: "comment_good"),
+        class: "category-btn #{'active' if params[:category] == 'comment_good'}" %>
+
+    <%= link_to "申請について", notifications_path(category: "post_status"),
+        class: "category-btn #{'active' if params[:category] == 'post_status'}" %>
+  </div>
+
+  <!-- ✅ 通知リスト -->
+  <div id="notification-list" class="notifications-results" style="display:flex; flex-direction:column; align-items:center; gap:15px;">
+    <% filtered = params[:category].present? ? @notifications.where(category: params[:category]) : @notifications %>
+    <% limited = filtered.limit(10) %>
+
+    <% if filtered.present? %>
+      <% limited.each do |n| %>
+        <% sender = User.find_by(id: n.sender_id) rescue nil %>
+        <% next unless sender %>
+
+        <!-- ✅ カード全体クリックで相手のユーザーページへ -->
+        <%= link_to user_path(sender), style:"width:90%; max-width:700px; text-decoration:none; color:inherit;" do %>
+          <div class="notification-card <%= 'unread' unless n.read %>" 
+              style="background:#fff; border:1px solid #ccc; border-radius:10px; padding:20px; 
+                     text-align:left; box-shadow:0 3px 8px rgba(0,0,0,0.1); display:flex; 
+                     align-items:center; justify-content:space-between;">
+
+            <!-- 左側：アイコン＋メッセージ -->
+            <div style="display:flex; align-items:center; gap:15px; flex:1;">
+              <% if sender.icon.attached? %>
+                <%= image_tag sender.icon, style:"width:60px; height:60px; border-radius:50%; object-fit:cover;" %>
+              <% else %>
+                <%= image_tag 'icon.png', style:"width:60px; height:60px; border-radius:50%; object-fit:cover;" %>
+              <% end %>
+
+              <div>
+                <p style="font-size:1.1rem; font-weight:bold; margin-bottom:6px;">
+                  <% case n.action_type %>
+                    <% when "follow_request_sent" %>
+                      <%= "#{sender.username} さんへフォロー申請しました" %>
+                    <% when "follow_approved" %>
+                      <%= "#{sender.username} さんへフォロー申請が承認されました！" %>
+                    <% when "follow_rejected" %>
+                      <%= "#{sender.username} さんへフォロー申請ですが承認されませんでした・・・" %>
+                    <% else %>
+                      <%= "#{sender.username} さん #{n.message}" %>
+                  <% end %>
+                </p>
+                <p style="font-size:0.9rem; color:#666;"><%= time_ago_in_words(n.created_at) %>前</p>
+              </div>
+            </div>
+
+            <!-- 右側：画像（承認 or 否認結果） -->
+            <% if n.action_type == "follow_approved" %>
+              <%= image_tag "omedeto.png", alt: "おめでとう", style: "width:90px; height:auto;" %>
+            <% elsif n.action_type == "follow_rejected" %>
+              <%= image_tag "namidazake.png", alt: "なみだ酒", style: "width:90px; height:auto;" %>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+
+      <!-- ✅ さらに見るボタン -->
+      <% if filtered.count > 10 %>
+        <button id="load-more"
+                data-offset="10"
+                style="margin-top:20px; background:#eee; border:none; border-radius:8px; 
+                       padding:10px 20px; font-weight:bold; cursor:pointer;">
+          さらに見る
+        </button>
+      <% end %>
+
+    <% else %>
+      <p style="text-align:center; color:#888;">通知はありません。</p>
+    <% end %>
+  </div>
+</div>
+
+<!-- ✅ JS: 「さらに見る」で10件ずつ追加表示 -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const button = document.getElementById("load-more");
+  if (!button) return;
+
+  button.addEventListener("click", () => {
+    const offset = parseInt(button.dataset.offset);
+    fetch(`?category=<%= params[:category] %>&offset=${offset}`, { headers: { 'Accept': 'text/vnd.turbo-stream.html' } })
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById("notification-list").insertAdjacentHTML("beforeend", html);
+        button.dataset.offset = offset + 10;
+      });
+  });
+});
+</script>

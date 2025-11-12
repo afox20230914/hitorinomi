@@ -1,0 +1,161 @@
+<!-- app/views/admin/stores/show.html.erb（全文置換） -->
+<div style="max-width:600px; margin:0 auto; padding:24px; background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(50,20,20,0.1);">
+  <h1 style="font-size:1.5rem; font-weight:bold; margin-bottom:22px;">申請内容ご確認</h1>
+
+  <!-- メイン画像（posts/confirm と同一） -->
+  <div style="margin-bottom:22px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">メイン画像</h2>
+    <% if @post.main_images.attached? %>
+      <% @post.main_images.each do |img| %>
+        <%= image_tag(img, style: "max-width:160px; margin:4px; border-radius:10px; box-shadow:0 2px 4px #ccc;") %>
+      <% end %>
+    <% else %>
+      <span style="color:#b50000; font-weight:bold;">画像なし</span>
+    <% end %>
+  </div>
+
+  <!-- 内観画像 -->
+  <div style="margin-bottom:22px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">内観画像</h2>
+    <% if @preview_groups[:interior_images].present? %>
+      <% @preview_groups[:interior_images].each do |att| %>
+        <%= image_tag(att, style: "max-width:120px; margin:4px; border-radius:8px; box-shadow:0 2px 4px #ccc;") %>
+      <% end %>
+    <% else %>
+      <span style="color:#b50000;">画像なし</span>
+    <% end %>
+  </div>
+
+  <!-- 外観画像 -->
+  <div style="margin-bottom:22px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">外観画像</h2>
+    <% if @preview_groups[:exterior_images].present? %>
+      <% @preview_groups[:exterior_images].each do |att| %>
+        <%= image_tag(att, style: "max-width:120px; margin:4px; border-radius:8px; box-shadow:0 2px 4px #ccc;") %>
+      <% end %>
+    <% else %>
+      <span style="color:#b50000;">画像なし</span>
+    <% end %>
+  </div>
+
+  <!-- 料理画像 -->
+  <div style="margin-bottom:22px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">料理画像</h2>
+    <% if @preview_groups[:food_images].present? %>
+      <% @preview_groups[:food_images].each do |att| %>
+        <%= image_tag(att, style: "max-width:120px; margin:4px; border-radius:8px; box-shadow:0 2px 4px #ccc;") %>
+      <% end %>
+    <% else %>
+      <span style="color:#b50000;">画像なし</span>
+    <% end %>
+  </div>
+
+  <!-- メニュー画像 -->
+  <div style="margin-bottom:22px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">メニュー画像</h2>
+    <% if @preview_groups[:menu_images].present? %>
+      <% @preview_groups[:menu_images].each do |att| %>
+        <%= image_tag(att, style: "max-width:120px; margin:4px; border-radius:8px; box-shadow:0 2px 4px #ccc;") %>
+      <% end %>
+    <% else %>
+      <span style="color:#b50000;">画像なし</span>
+    <% end %>
+  </div>
+
+  <!-- 店舗情報 -->
+  <div style="margin-bottom:16px;"><strong style="font-size:1.08rem;">店舗名：</strong><span><%= @post.name.presence || "未入力" %></span></div>
+  <div style="margin-bottom:16px;"><strong style="font-size:1.08rem;">住所：</strong><span><%= [@post.prefecture, @post.city, @post.address_detail].compact.join(" ") %></span></div>
+
+  <%# 時刻を "1100" -> "11:00" に整形（posts/confirm と同一） %>
+  <% def fmt_time(t)
+       s = t.to_s.gsub(/\D/,'')[0,4]
+       return nil if s.nil? || s.empty?
+       s = s.rjust(4,'0')
+       "#{s[0,2]}:#{s[2,2]}"
+     end %>
+
+  <!-- 営業時間（@hours_data 準拠） -->
+  <div style="margin-bottom:24px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">営業時間</h2>
+
+    <% irregular =
+         !!(@irregular_holiday ||
+            (defined?(params) && params.dig(:post, :opening_hours, :irregular).present?)) %>
+
+    <% if @hours_data.present? %>
+      <% regular_rows = @hours_data.select { |h| !h[:holiday] } %>
+      <% regular_days = regular_rows.map { |h| h[:day] } %>
+
+      <% if regular_days.any? %>
+        <p><strong><%= regular_days.join("・") %></strong></p>
+        <% sample = regular_rows.first %>
+        <% o1 = fmt_time(sample[:open1]); c1 = fmt_time(sample[:close1]) %>
+        <% o2 = fmt_time(sample[:open2]); c2 = fmt_time(sample[:close2]) %>
+        <% if o1 && c1 %><p><%= "#{o1} 〜 #{c1}" %></p><% end %>
+        <% if o2 && c2 %><p><%= "#{o2} 〜 #{c2}" %></p><% end %>
+      <% else %>
+        <p>営業日：なし</p>
+      <% end %>
+
+      <p style="color:#666; font-size:0.9rem; margin-top:10px;">
+        営業時間・定休日は変更となる場合がございますので、ご来店前に店舗にご確認ください。
+      </p>
+    <% else %>
+      <p style="color:#b50000;">未入力</p>
+    <% end %>
+  </div>
+
+  <!-- 定休日 -->
+  <div style="margin-bottom:14px;">
+    <strong>定休日：</strong>
+    <% if irregular %>
+      <span>不定休</span>
+    <% else %>
+      <% if @hours_data.present? %>
+        <% holiday_days = @hours_data.select { |h| h[:holiday] }.map { |h| h[:day] } %>
+        <span><%= holiday_days.any? ? holiday_days.join("・") : "未設定" %></span>
+      <% else %>
+        <span><%= @post.holidays.presence || "未設定" %></span>
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- 予算 -->
+  <div style="margin-bottom:14px;">
+    <strong>予算：</strong>
+    <span>
+      <%= (
+        { 0 => "不明", 1000 => "1000円", 2000 => "2000円", 3000 => "3000円" }[@post.budget.to_i] ||
+        (@post.budget.present? ? number_to_currency(@post.budget, unit: "¥", precision: 0) : "未設定")
+      ) %>
+    </span>
+  </div>
+
+  <!-- 店舗カテゴリ / 喫煙 -->
+  <div style="margin-bottom:14px;"><strong>店舗カテゴリ：</strong><span><%= @post.store_type.presence || "未設定" %></span></div>
+  <div style="margin-bottom:14px;"><strong>喫煙：</strong><span><%= @post.smoking_allowed.presence || "未設定" %></span></div>
+
+  <!-- 店舗概要 -->
+  <div style="margin-bottom:18px;">
+    <strong>店舗概要：</strong>
+    <div style="color:#222; margin-top:4px; font-size:0.98rem"><%= simple_format(@post.description.presence || "未入力") %></div>
+  </div>
+
+  <!-- 店舗関係者 / 連絡先 -->
+  <% owner_raw = @post.is_owner %>
+  <% owner_flag =
+       case owner_raw
+       when true, 'true', 1, '1' then true
+       when false, 'false', 0, '0' then false
+       else nil
+       end %>
+  <div style="margin-bottom:14px;">
+    <strong>店舗関係者：</strong>
+    <span><%= owner_flag.nil? ? "未回答" : (owner_flag ? "そうです" : "いいえ") %></span>
+  </div>
+
+  <div style="margin-bottom:14px;">
+    <strong>連絡先：</strong>
+    <span><%= owner_flag ? (@post.contact_info.presence || "未入力") : "—" %></span>
+  </div>
+</div>

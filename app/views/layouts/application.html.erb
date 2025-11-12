@@ -1,60 +1,60 @@
+<!-- app/views/layouts/application.html.erb （フラッシュ5秒・全文置換） -->
 <!DOCTYPE html>
 <html>
   <head>
     <title>Hitorinomi</title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
-    <%= javascript_pack_tag 'application', 'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
   </head>
-
   <body>
-  <header class="header" style="z-index: 999; position: relative; display: flex; align-items: center; justify-content: space-between;">
-  <!-- 左：ロゴ -->
-  <div class="header-left">
-    <%= link_to root_path do %>
-      <%= image_tag 'logowhite.png', alt: 'ヒトリ呑み', class: 'site-logo' %>
+    <header class="header" style="z-index: 999; position: relative; display:flex; align-items:center; justify-content:space-between;">
+      <div class="header-left">
+        <%= link_to root_path do %>
+          <%= image_tag 'logowhite.png', alt: 'ヒトリ呑み', class: 'site-logo' %>
+        <% end %>
+      </div>
+
+      <div id="flash-banner" style="position:fixed; top:70px; left:50%; transform:translateX(-50%); z-index:9999; display:none; background:#333; color:#fff; padding:12px 24px; border-radius:8px; font-weight:bold; box-shadow:0 3px 8px rgba(0,0,0,0.3);"></div>
+
+      <nav class="header-right">
+        <% if logged_in? %>
+          <%= link_to "マイページ", user_path(current_user) %>
+          <%= link_to "店舗一覧", stores_path %>
+          <%= link_to "フォロー", followers_path %>
+          <%= link_to "新規投稿", new_post_path %>
+          <%= link_to "通知", notifications_path %>
+          <%= link_to "ログアウト", logout_path, method: :delete %>
+        <% else %>
+          <%= link_to "店舗一覧", stores_path %>
+          <%= link_to "ログイン", login_path %>
+          <%= link_to "新規登録", new_user_path %>
+        <% end %>
+        <%= link_to "お問い合わせ", contact_path %>
+      </nav>
+    </header>
+
+    <% if flash.any? %>
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const banner = document.getElementById("flash-banner");
+          if (!banner) return;
+          <% flash.each do |type, message| %>
+            banner.textContent = "<%= j(message) %>";
+            banner.style.background = "<%= type.to_s == 'alert' ? '#f44336' : '#4caf50' %>";
+            banner.style.display = "block";
+            setTimeout(() => {
+              banner.style.transition = "opacity .5s";
+              banner.style.opacity = "0";
+              setTimeout(() => { banner.remove(); }, 500);
+            }, 5000);
+          <% end %>
+        });
+      </script>
     <% end %>
-  </div>
 
-  <!-- 中央：検索フォーム -->
-  <%= form_with url: searches_path, method: :get, local: true, class: "header-search-form" do |f| %>
-    <%= f.text_field :keyword, placeholder: "検索", value: params[:keyword], class: "header-search-input" %>
-    <%= f.submit "検索", class: "header-search-button" %>
-  <% end %>
-  
-
-  <!-- 右：ナビゲーション -->
-  <nav class="header-right">
-    <% if logged_in? %>
-      <%= link_to "マイページ", user_path(current_user) %>
-      <%= link_to "店舗一覧", stores_path %>
-      <%= link_to "フォロワー", followers_path %>
-      <%= link_to "新規投稿", new_post_path %>
-      <%= link_to "通知", notifications_path %>
-      <%= link_to "ログアウト", logout_path, method: :delete %>
-    <% else %>
-      <%= link_to "店舗一覧", stores_path %>
-      <%= link_to "ログイン", login_path %>
-      <%= link_to "新規登録", new_user_path %>
-    <% end %>
-    <%= link_to "お問い合わせ", contact_path %>
-  </nav>
-</header>
-
-
-
-    <% if flash[:notice].present? %>
-    <% if flash[:notice].to_s.match?(/登録が完了|登録情報を更新|お気に入り|来店/) %>
-      <div class="flash-notice flash-signup"><%= flash[:notice] %></div>
-    <% else %>
-      <div class="flash-notice"><%= flash[:notice] %></div>
-    <% end %>
-  <% elsif flash[:alert].present? %>
-    <div class="flash-alert"><%= flash[:alert] %></div>
-  <% end %>
-  
-    <main style="padding: 20px;">
+    <main style="padding:20px;">
       <%= yield %>
     </main>
   </body>

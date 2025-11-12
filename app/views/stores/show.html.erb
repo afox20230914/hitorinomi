@@ -1,20 +1,17 @@
 <div class="store-show-container">
 
-<!-- メイン画像スライド -->
+<!-- メイン画像スライド（ActiveStorage版に戻す） -->
 <div class="main-image-section">
-  <% main_images = [@store.main_image_1, @store.main_image_2, @store.main_image_3, @store.main_image_4].compact %>
-
-<% if main_images.first.present? %>
+  <% slots = [@store.main_image_1, @store.main_image_2, @store.main_image_3, @store.main_image_4] %>
+  <% first = slots.find { |s| s.respond_to?(:attached?) && s.attached? } %>
   <div class="main-image-container">
-    <%= image_tag main_images.first, alt: "メイン画像01", class: "main-image" %>
+    <% if first %>
+      <%= image_tag url_for(first), alt: "メイン画像01", class: "main-image" %>
+    <% else %>
+      <%= image_tag "tempo.png", alt: "デフォルト画像", class: "main-image" %>
+    <% end %>
   </div>
-<% else %>
-  <div class="main-image-container">
-    <%= image_tag "tempo.png", alt: "デフォルト画像", class: "main-image" %>
-  </div>
-<% end %>
-
-
+</div>
 
 
   <!-- サブ画像へのカテゴリリンク -->
@@ -28,23 +25,20 @@
   <!-- 店舗基本情報 -->
   <div class="store-header">
     <h1><%= @store.name %></h1>
+
     <div class="icon-row">
-    <span class="icon">[<%= @store.store_type %>]</span>
-    <span class="icon">[<%= @store.smoking_allowed %>]</span>
-  
-    <% if logged_in? %>
-      <%= link_to "来店ボタン", visit_store_path(@store), method: :post, class: "visit-btn" %>
-  
-      <% if current_user.favorite_stores.include?(@store) %>
-        <%= button_to "お気に入り解除", unfavorite_store_path(@store),
-              method: :delete, class: "favorite-btn remove" %>
-      <% else %>
-        <%= button_to "お気に入り登録", favorite_store_path(@store),
-              method: :post, class: "favorite-btn add" %>
+      <span class="icon">[<%= @store.store_type %>]</span>
+      <span class="icon">[<%= @store.smoking_allowed %>]</span>
+
+      <% if logged_in? %>
+        <%= button_to "来店ボタン", visit_store_path(store_id: @store.id), method: :post, class: "visit-btn" %>
+        <% if current_user.favorites.exists?(store: @store) %>
+          <%= button_to 'お気に入り解除', favorite_path(id: @store.id), method: :delete, class: 'unfavorite-btn' %>
+        <% else %>
+          <%= button_to 'お気に入り登録', favorites_path(id: @store.id), method: :post, class: 'favorite-btn' %>
+        <% end %>
       <% end %>
-    <% end %>
-  </div>
-  
+    </div>
 
     <p class="address"><%= [@store.postal_code, @store.prefecture, @store.city, @store.address_detail].join(' ') %></p>
     <p class="description"><%= simple_format(@store.description) %></p>
@@ -54,61 +48,223 @@
   <div class="store-details-grid">
     <div class="store-info-box">
       <h2>店舗情報</h2>
-      <p><strong>営業時間：</strong><%= @store.opening_time.strftime("%H:%M") %>〜<%= @store.closing_time.strftime("%H:%M") %></p>
-      <p><strong>定休日：</strong><%= @store.holidays %></p>
-      <p><strong>座席数：</strong><%= @store.seating_capacity %></p>
-      <p><strong>予算：</strong><%= number_to_currency(@store.budget, unit: "¥", precision: 0) %></p>
-    </div>
-
-    <!-- コメント一覧 -->
-    <div class="comment-box">
-      <h2>コメント一覧</h2>
+  
+      <p><strong>営業時間：</strong></p>
+      <% txt = @store.try(:hours_text).presence || Post.find_by(id: @store.post_id)&.hours_text %>
+      <% if txt.present? %>
+        <div style="white-space:pre-line;"><%= h(txt) %></div>
+      <% else %>
+        <span style="color:#b50000;">未入力</span>
+      <% end %>
+      
+  
+  
+    <!-- ===== 旧ロジック（曜日テーブル優先）完全保管：実行不可 ===== -->
+    <template id="store-hours-legacy-preserved" style="display:none;"><%= raw(ERB::Util.html_escape(<<~'ERB')) %>
+    <!-- 店舗情報（ここを丸ごと置換） -->
+    <div class="store-info-box">
+      <h2>店舗情報</h2>
     
-      <% if @store.comments.any? %>
-        <% @store.comments.order(good_count: :desc).each do |comment| %>
-          <div class="comment-entry">
-            <details>
-              <summary><%= truncate(comment.body, length: 40) %></summary>
-              <p><%= simple_format(comment.body) %></p>
-            </details>
-            <p class="comment-meta">
-              投稿ユーザー：
-              <%= link_to comment.user.username, user_path(comment.user) %>
-            </p>
-            <div class="vote-buttons">
-              <%= button_to "👍 good", good_comment_path(comment), method: :post %>
-              <span class="good-count">（<%= comment.good_count %>）</span>
-              <%= button_to "👎 bad", bad_comment_path(comment), method: :post %>
+      <%# 1) opening_hours_json があれば曜日別を表示 / なければ従来表示 %>
+      <% hours = @store.opening_hours_json.presence %>
+      <% hours = JSON.parse(hours) if hours.is_a?(String) %>
+      <% days = %w[月 火 水 木 金 土 日 祝] %>
+    
+      <% if hours.present? %>
+        <p><strong>定休日：</strong>
+          <% if @store.irregular_holiday %>不定休<% elsif @store.holidays.present? %><%= @store.holidays %><% else %>未設定<% end %>
+        </p>
+    
+        <div class="hours-table-wrapper" style="overflow-x:auto">
+          <table class="hours-table" style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:4px 6px;">曜日</th>
+                <th style="text-align:left;padding:4px 6px;">営業時間①</th>
+                <th style="text-align:left;padding:4px 6px;">営業時間②</th>
+                <th style="text-align:left;padding:4px 6px;">休</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% days.each do |d| %>
+                <% row =
+                     if hours.is_a?(Array)
+                       hours.find{|h| h["day"].to_s==d } || {}
+                     else
+                       {
+                         "open1"=>hours["#{d}_open1"], "close1"=>hours["#{d}_close1"],
+                         "open2"=>hours["#{d}_open2"], "close2"=>hours["#{d}_close2"],
+                         "holiday"=>(hours["#{d}_holiday"].to_s=="1")
+                       }
+                     end %>
+                <% fmt = ->(v){ s=v.to_s.gsub(/\D/,'')[0,4]; s.present? ? "#{s.rjust(4,'0')[0,2]}:#{s.rjust(4,'0')[2,2]}" : "" } %>
+                <tr>
+                  <td style="padding:4px 6px;"><%= d %></td>
+                  <td style="padding:4px 6px;"><%= [fmt.call(row["open1"]), fmt.call(row["close1"])].reject(&:blank?).join("〜") %></td>
+                  <td style="padding:4px 6px;"><%= [fmt.call(row["open2"]), fmt.call(row["close2"])].reject(&:blank?).join("〜") %></td>
+                  <td style="padding:4px 6px;"><%= row["holiday"] ? "✓" : "" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p><strong>営業時間：</strong>
+          <% if @store.opening_time.present? && @store.closing_time.present? %>
+            <%= @store.opening_time %>〜<%= @store.closing_time %>
+          <% else %>
+            <span style="color:#b50000;">未入力</span>
+          <% end %>
+        </p>
+        <p><strong>定休日：</strong>
+          <% if @store.irregular_holiday %>不定休<% elsif @store.holidays.present? %><%= @store.holidays %><% else %>未設定<% end %>
+        </p>
+      <% end %>
+    </div>
+    ERB
+    ) %></template>
+  
+  </div>
+  
+  
+  
+
+  <!-- コメントセクション -->
+  <div class="comments-section">
+    <h3 class="comments-title">コメント一覧</h3>
+  
+    <button
+      id="show-comment-form"
+      class="comment-write-btn"
+      data-can-comment="<%= current_user ? 'true' : 'false' %>">
+      コメントを書く
+    </button>
+  
+    <%# 旧注記：来店済み限定（保管） %>
+    <%# <span class="comment-note">（会員様 / 来店済みの方のみ投稿できます）</span> %>
+    <span class="comment-note">（会員様のみ投稿できます）</span>
+  
+    <div id="comment-form" class="comment-form hidden">
+      <%# 旧条件：@can_comment（来店必須）を保管 %>
+      <%# if @can_comment %>
+      <% if current_user %>
+        <%= form_with(model: [@store, Comment.new], local: true) do |f| %>
+          <div class="form-group">
+            <%= f.label :title, "タイトル" %>
+            <%= f.text_field :title, placeholder: "例：落ち着いた立ち飲みでした" %>
+          </div>
+          <div class="form-group">
+            <%= f.label :body, "本文" %>
+            <%= f.text_area :body, placeholder: "お店の雰囲気や感想を書いてください…", rows: 4 %>
+          </div>
+          <%= f.submit "投稿する", class: "submit-btn" %>
+        <% end %>
+      <% end %>
+      <%# end %>
+    </div>
+  
+    <hr>
+  
+    <div id="comments-root">
+      <% @comments.each do |comment| %>
+        <div class="comment-card">
+          <div class="comment-content">
+            <h4 class="comment-title"><%= comment.title.presence || "（タイトルなし）" %></h4>
+            <p class="comment-body-text"><%= simple_format(comment.body) %></p>
+          </div>
+  
+          <div class="comment-meta-row">
+            <div class="meta-left">
+              <%= link_to user_path(comment.user), class: "user-icon-link" do %>
+                <%= image_tag(
+                      comment.user.icon.attached? ? url_for(comment.user.icon) : asset_path("icon.png"),
+                      class: "user-icon", alt: "user icon") %>
+              <% end %>
+              <div class="user-info-inline">
+                <%= link_to comment.user.username, user_path(comment.user), class: "user-name" %>
+                <span class="date"><%= comment.created_at.strftime('%Y-%m-%d %H:%M') %></span>
+              </div>
+            </div>
+  
+            <div class="vote-section"
+                 data-store-id="<%= @store.id %>"
+                 data-comment-id="<%= comment.id %>">
+              <button
+                class="score good-btn
+                  <%= 'active' if @user_votes[comment.id] == 'good' %>
+                  <%= 'inactive' if @user_votes[comment.id] != 'good' %>"
+                data-type="good"
+                data-id="<%= comment.id %>">
+                👍 GOOD: <span class="good-count"><%= comment.good_count %></span>
+              </button>
+  
+              <button
+                class="score bad-btn
+                  <%= 'active' if @user_votes[comment.id] == 'bad' %>
+                  <%= 'inactive' if @user_votes[comment.id] != 'bad' %>"
+                data-type="bad"
+                data-id="<%= comment.id %>">
+                👎 BAD: <span class="bad-count"><%= comment.bad_count %></span>
+              </button>
+  
+              <div id="flash-banner"
+                   style="position: fixed;
+                          top: 70px;
+                          left: 50%;
+                          transform: translateX(-50%);
+                          z-index: 9999;
+                          display: none;
+                          background: #333;
+                          color: #fff;
+                          padding: 12px 24px;
+                          border-radius: 8px;
+                          font-weight: bold;
+                          box-shadow: 0 3px 8px rgba(0,0,0,0.3);">
+              </div>
+  
+              <%= link_to "このコメントを報告する", new_report_path(comment_id: comment.id), class: "report-link" %>
             </div>
           </div>
-        <% end %>
-      <% else %>
-        <p>まだコメントはありません。</p>
+        </div>
       <% end %>
-    
-      <!-- ★ コメント投稿フォーム：常に表示 -->
-      <div class="comment-form-box">
-        <h2>コメントを投稿する</h2>
-    
-        <%= form_with(model: [@store, Comment.new], local: true) do |form| %>
-          <div class="form-group">
-            <%= form.label :body, "コメント内容" %><br>
-            <%= form.text_area :body, rows: 4 %>
-          </div>
-        
-          <%# user_id は controller 側で current_user に紐付ける %>
-        
-          <div class="form-actions">
-            <%= form.submit "投稿", class: "btn btn-primary" %>
-          </div>
-        <% end %>        
-      </div>
     </div>
-    
-
-  <!-- 情報修正リンク -->
+  
+    <% if @store.comments.count > 10 %>
+      <%= link_to "もっと見る", store_comments_path(@store), class: "more-comments" %>
+    <% end %>
+  </div>
+  
+  <!-- コメントフォーム開閉スクリプト -->
+  <script>
+  (function () {
+    if (window.__commentToggleInit) return;
+    window.__commentToggleInit = true;
+  
+    function initCommentToggle() {
+      var btn  = document.getElementById('show-comment-form');
+      var form = document.getElementById('comment-form');
+      if (!btn || !form) return;
+  
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var can = (btn.dataset.canComment === 'true');
+        if (!can) {
+          alert('コメント投稿はログインが必要です。');
+          return;
+        }
+        form.classList.toggle('hidden');
+      }, { passive: false });
+    }
+  
+    document.addEventListener('turbolinks:load', initCommentToggle);
+    document.addEventListener('turbo:load', initCommentToggle);
+    document.addEventListener('DOMContentLoaded', initCommentToggle);
+  })();
+  </script>
+  
+  
   <div class="edit-request-link">
     <%= link_to "店舗情報の修正を申請する", new_post_path(store_id: @store.id), class: "edit-link" %>
   </div>
-
 </div>
+

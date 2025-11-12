@@ -1,0 +1,22 @@
+<h1>店舗編集</h1>
+<%= form_with(model: @store, url: admin_store_path(@store), method: :patch) do |f| %>
+  <div>
+    <%= f.label :name, "店舗名" %>
+    <%= f.text_field :name %>
+  </div>
+  <div>
+    <%= f.label :budget, "予算" %>
+    <%= f.text_field :budget %>
+  </div>
+  <div>
+    <%= f.label :opening_time, "開店時間" %>
+    <%= f.text_field :opening_time %>
+  </div>
+  <div>
+    <%= f.label :closing_time, "閉店時間" %>
+    <%= f.text_field :closing_time %>
+  </div>
+  <div>
+    <%= f.submit "更新" %>
+  </div>
+<% end %>

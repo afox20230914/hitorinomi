@@ -27,28 +27,29 @@
   border-radius: 4px;
   cursor: pointer;
   transition: transform 0.3s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 }
 
-.thumbnail:hover {
-  transform: scale(1.1);
-}
-
+/* お気に入りボタン */
 .favorite-btn {
   margin-left: 10px;
   padding: 5px 12px;
   border-radius: 5px;
   font-weight: bold;
   cursor: pointer;
-}
 
-.favorite-btn.add {
-  background-color: #ffd700;
-  border: 1px solid #e6c200;
-}
+  &.add {
+    background-color: #ffd700;
+    border: 1px solid #e6c200;
+  }
 
-.favorite-btn.remove {
-  background-color: #ccc;
-  border: 1px solid #aaa;
+  &.remove {
+    background-color: #ccc;
+    border: 1px solid #aaa;
+  }
 }
 
 /* 来店ボタン */
@@ -63,16 +64,467 @@
   border: none;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
   &:hover {
     background-color: #c40000;
     transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
   }
 
   &:active {
     background-color: #a80000;
     transform: translateY(0);
   }
+}
+
+/* ===============================
+   コメントセクション（店舗詳細ページ内）
+================================= */
+
+.comments-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+}
+
+/* --- ソートボタン --- */
+.sort-area {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  justify-content: flex-start;
+}
+
+.sort-btn {
+  background: #ffe4e4;
+  border: 1px solid #d77;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+/* --- コメント投稿フォーム --- */
+.comment-write-banner {
+  background: #fff6dc;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comment-write-btn {
+  background: #fff;
+  border: 1px solid #999;
+  padding: 6px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.comment-form {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+
+  input,
+  textarea {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+}
+
+.submit-btn {
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: bold;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+/* --- コメントカード --- */
+.comment-card {
+  border-radius: 10px;
+  background: #fff;
+  padding: 16px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.comment-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.comment-body-text {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+/* --- ユーザー情報 --- */
+.comment-user {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-icon-link {
+  display: inline-block;
+}
+
+.user-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  object-fit: cover;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  color: #0044cc;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.date {
+  font-size: 13px;
+  color: #777;
+}
+
+/* --- アクション領域（GOOD/BADなど） --- */
+.comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.score.good-btn,
+.score.bad-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.score.good-btn {
+  background: #d9e7ff;
+}
+
+.score.bad-btn {
+  background: #ffe0e0;
+}
+
+.report-link {
+  margin-left: auto;
+  color: #0044cc;
+  text-decoration: underline;
+}
+
+/* --- もっと見るリンク --- */
+.more-comments {
+  display: block;
+  text-align: center;
+  margin-top: 15px;
+  color: #0044cc;
+}
+
+.comments-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  border-left: 5px solid #d10000;
+  padding-left: 10px;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.user-info-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.comment-actions-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* まずはユーティリティ */
+.hidden { display: none; }
+
+/* タイトル見出し */
+.comments-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  border-left: 5px solid #d10000;
+  padding-left: 10px;
+}
+
+/* 上部バナー */
+.comment-write-banner {
+  background: #fff6dc;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.comment-write-btn {
+  background: #fff;
+  border: 1px solid #999;
+  padding: 6px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.comment-note { margin-left: auto; color: #555; font-size: 13px; }
+
+/* フォーム */
+.comment-form {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 16px;
+}
+
+/* ソート */
+.sort-area {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0 18px;
+}
+.sort-btn {
+  background: #ffe4e4;
+  border: 1px solid #d77;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+}
+.sort-btn:hover { opacity: .85; }
+
+/* コメントカード */
+.comment-card {
+  border-radius: 10px;
+  background: #fff;
+  padding: 16px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+
+/* タイトル→本文 を先に */
+.comment-title { font-weight: 700; margin-bottom: 6px; font-size: 16px; }
+.comment-body-text { font-size: 15px; line-height: 1.7; margin-bottom: 12px; }
+
+/* 1行にユーザー情報＋ボタン類 */
+.comment-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.meta-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.user-icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 2px solid #ccc; object-fit: cover;
+}
+.user-info-inline { display: flex; align-items: center; gap: 10px; }
+.user-name { color: #0044cc; text-decoration: underline; font-weight: 700; }
+.date { font-size: 13px; color: #777; }
+
+.meta-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+
+/* =========================================
+   コメント評価ボタン（GOOD / BAD）
+   ========================================= */
+
+   .vote-section {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* --- ボタン --- */
+  .score.good-btn,
+  .score.bad-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  
+  .score.good-btn { background: #d9e7ff; }
+  .score.bad-btn  { background: #ffe0e0; }
+  
+  .score.good-btn:hover,
+  .score.bad-btn:hover {
+    opacity: 0.85;
+  }
+  
+  /* --- 押下後のアクティブ色 --- */
+  .score.good-btn.active { background: #90c8ff; }
+  .score.bad-btn.active  { background: #ffb3b3; }
+  
+  /* --- インラインメッセージ --- */
+  .vote-message {
+    margin-left: 10px;
+    font-size: 13px;
+    color: #008000;
+    font-weight: bold;
+    animation: fadeout 2.5s forwards;
+    transition: opacity 0.3s;
+  }
+  
+  /* --- フラッシュ（ボタン直上に一時表示） --- */
+  .flash-inline {
+    position: absolute;
+    top: -25px;
+    left: 0;
+    background: #fff8c6;
+    border: 1px solid #e0b200;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    animation: fadeFlash 2s ease-out forwards;
+  }
+  
+  /* --- 通報リンク --- */
+  .report-link {
+    color: #0044cc;
+    text-decoration: underline;
+  }
+  
+  /* --- フェードアニメ --- */
+  @keyframes fadeout {
+    0%   { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  
+  @keyframes fadeFlash {
+    0%   { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-5px); }
+  }
+  
+  .hidden { display: none; }
+
+  .vote-section { position: relative; display: flex; align-items: center; gap: 10px; }
+  .flash-inline {
+    position: absolute; top: -25px; left: 0;
+    background: #fff8c6; border: 1px solid #e0b200;
+    padding: 3px 10px; border-radius: 5px; font-size: 13px;
+    animation: fadeFlash 2s ease-out forwards;
+  }
+  @keyframes fadeFlash { 0% {opacity:1} 80% {opacity:1} 100% {opacity:0; transform: translateY(-5px);} }
+  
+  .score.good-btn, .score.bad-btn { border: none; border-radius: 6px; padding: 6px 14px; font-weight: 700; cursor: pointer; transition: .15s; }
+  .score.good-btn { background: #d9e7ff; }
+  .score.bad-btn  { background: #ffe0e0; }
+  .score.good-btn.active { background: #bcd7ff; }
+  .score.bad-btn.active  { background: #ffc7c7; }
+  
+  .vote-section button.inactive {
+    opacity: 0.5;
+    filter: grayscale(70%);
+    pointer-events: auto; // ←クリック可に戻す
+  }
+  
+  
+  button.active {
+    color: #fff;
+    background-color: #4caf50;
+  }
+  button.inactive {
+    color: #999;
+    background-color: #eee;
+  }
+  
+  .comment-form.hidden { display: none; }
+.score { border: none; background: #f5f5f5; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+.score.active { background: #4caf50; color: #fff; }
+
+.comment-form.hidden { display: none; }
+
+.score {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #f5f5f5;
+  color: #333;
+  cursor: pointer;
+  transition: filter .15s ease, background .15s ease, color .15s ease;
+}
+.score:hover { filter: brightness(0.95); }
+
+.score.active {
+  background: #4caf50;
+  color: #fff;
+}
+
+/* ==== 評価ボタン 修正: 非アクティブでもクリックできるように ==== */
+.vote-section button.inactive {
+  pointer-events: auto !important;
+  opacity: 0.6;
+  filter: none;
 }

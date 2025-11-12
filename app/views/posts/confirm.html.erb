@@ -1,42 +1,230 @@
-<h1>店舗申請内容の確認</h1>
+<div style="max-width:600px; margin:0 auto; padding:24px; background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(50,20,20,0.1);">
+  <h1 style="font-size:1.5rem; font-weight:bold; margin-bottom:22px;">申請内容ご確認</h1>
 
-<!-- 左側：画像 -->
-<div class="images-preview">
-  <% if @post.images.attached? %>
-    <% @post.images.each do |image| %>
-      <%= image_tag image, size: "100x100" %>
-    <% end %>
-  <% else %>
-    <%= image_tag "tempo.png", size: "200x200" %>
-  <% end %>
-</div>
-
-<!-- 右側：情報 -->
-<div class="post-info">
-  <h2><%= @post.name %></h2>
-  <p>住所：<%= @post.postal_code %> <%= @post.prefecture %> <%= @post.city %> <%= @post.address_detail %></p>
-  <p>店舗紹介：<%= @post.description %></p>
-
-  <h3>店舗情報</h3>
-  <p>営業時間：<%= @post.opening_time %> ～ <%= @post.closing_time %></p>
-  <p>定休日：<%= @post.holidays %></p>
-  <p>座席数：<%= @post.seating_capacity %></p>
-  <p>予算：<%= @post.budget %>円</p>
-</div>
-
-<!-- フォーム再送信 -->
-<%= form_with model: @post, url: posts_path, local: true do |f| %>
-  <% @post.attributes.each do |key, value| %>
-    <% if value.is_a?(Array) %>
-      <% value.each do |v| %>
-        <%= hidden_field_tag "post[#{key}][]", v %>
+  <!-- メイン画像 -->
+  <div style="margin-bottom:22px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">メイン画像</h2>
+    <% if @post.main_images.attached? %>
+      <% @post.main_images.each do |img| %>
+        <%= image_tag(img, style: "max-width:160px; margin:4px; border-radius:10px; box-shadow:0 2px 4px #ccc;") %>
       <% end %>
     <% else %>
-      <%= hidden_field_tag "post[#{key}]", value %>
+      <span style="color:#b50000; font-weight:bold;">画像なし</span>
     <% end %>
+  </div>
+
+  <!-- 内観画像 -->
+  <div style="margin-bottom:22px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">内観画像</h2>
+    <% if @preview_groups[:interior_images].present? %>
+      <% @preview_groups[:interior_images].each do |att| %>
+        <%= image_tag(att, style: "max-width:120px; margin:4px; border-radius:8px; box-shadow:0 2px 4px #ccc;") %>
+      <% end %>
+    <% else %>
+      <span style="color:#b50000;">画像なし</span>
+    <% end %>
+  </div>
+
+  <!-- 外観画像 -->
+  <div style="margin-bottom:22px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">外観画像</h2>
+    <% if @preview_groups[:exterior_images].present? %>
+      <% @preview_groups[:exterior_images].each do |att| %>
+        <%= image_tag(att, style: "max-width:120px; margin:4px; border-radius:8px; box-shadow:0 2px 4px #ccc;") %>
+      <% end %>
+    <% else %>
+      <span style="color:#b50000;">画像なし</span>
+    <% end %>
+  </div>
+
+  <!-- 料理画像 -->
+  <div style="margin-bottom:22px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">料理画像</h2>
+    <% if @preview_groups[:food_images].present? %>
+      <% @preview_groups[:food_images].each do |att| %>
+        <%= image_tag(att, style: "max-width:120px; margin:4px; border-radius:8px; box-shadow:0 2px 4px #ccc;") %>
+      <% end %>
+    <% else %>
+      <span style="color:#b50000;">画像なし</span>
+    <% end %>
+  </div>
+
+  <!-- メニュー画像 -->
+  <div style="margin-bottom:22px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">メニュー画像</h2>
+    <% if @preview_groups[:menu_images].present? %>
+      <% @preview_groups[:menu_images].each do |att| %>
+        <%= image_tag(att, style: "max-width:120px; margin:4px; border-radius:8px; box-shadow:0 2px 4px #ccc;") %>
+      <% end %>
+    <% else %>
+      <span style="color:#b50000;">画像なし</span>
+    <% end %>
+  </div>
+
+  <!-- 店舗情報 -->
+  <div style="margin-bottom:16px;"><strong style="font-size:1.08rem;">店舗名：</strong><span><%= @post.name.presence || "未入力" %></span></div>
+  <div style="margin-bottom:16px;"><strong style="font-size:1.08rem;">住所：</strong><span><%= [@post.prefecture, @post.city, @post.address_detail].compact.join(" ") %></span></div>
+  <!-- ================== confirm.html.erb の「営業時間」表示（textarea版＋フォールバック） ================== -->
+  <div style="margin-bottom:24px;">
+    <h2 style="font-size:1.15rem; font-weight:bold;">営業時間</h2>
+  
+    <% raw_hours =
+         if @post.respond_to?(:hours_text)
+           @post.hours_text
+         else
+           (defined?(params) && params.dig(:post, :hours_text)).to_s
+         end %>
+  
+    <% normalized = raw_hours.to_s.gsub(/\r\n?/, "\n").lines.map { |l| l.strip }.reject(&:blank?).join("\n") %>
+  
+    <% if normalized.present? %>
+      <% safe_html = h(normalized).gsub("\n", "<br>") %>
+      <div style="line-height:1.8;"><%= safe_html.html_safe %></div>
+      <p style="color:#666; font-size:0.9rem; margin-top:10px;">
+        営業時間・定休日は変更となる場合がございますので、ご来店前に店舗にご確認ください。
+      </p>
+    <% else %>
+      <p style="color:#b50000;">未入力</p>
+    <% end %>
+  </div>
+  
+  <!-- ================== 旧ロジック（不定休優先＋時刻HH:MM）完全保管：実行不可 ================== -->
+  <template id="hours-confirm-legacy-preserved" style="display:none;"><%= raw(ERB::Util.html_escape(<<~'ERB')) %>
+    <!-- ================== confirm.html.erb の「営業時間」表示（不定休優先＋時刻HH:MM） ================== -->
+    <%# 時刻を "1100" -> "11:00" に整形 %>
+    <% def fmt_time(t)
+         s = t.to_s.gsub(/\D/,'')[0,4]
+         return nil if s.nil? || s.empty?
+         s = s.rjust(4,'0')
+         "#{s[0,2]}:#{s[2,2]}"
+       end %>
+    
+    <div style="margin-bottom:24px;">
+      <h2 style="font-size:1.15rem; font-weight:bold;">営業時間</h2>
+    
+      <% # 不定休フラグ（@irregular_holiday を最優先。無ければ params のチェックを拾う） %>
+      <% irregular =
+           !!(@irregular_holiday ||
+              (defined?(params) && params.dig(:post, :opening_hours, :irregular).present?)) %>
+    
+      <% if @hours_data.present? %>
+        <% regular_rows = @hours_data.select { |h| !h[:holiday] } %>
+        <% regular_days = regular_rows.map { |h| h[:day] } %>
+    
+        <% if regular_days.any? %>
+          <p><strong><%= regular_days.join("・") %></strong></p>
+          <% sample = regular_rows.first %>
+          <% o1 = fmt_time(sample[:open1]); c1 = fmt_time(sample[:close1]) %>
+          <% o2 = fmt_time(sample[:open2]); c2 = fmt_time(sample[:close2]) %>
+          <% if o1 && c1 %><p><%= "#{o1} 〜 #{c1}" %></p><% end %>
+          <% if o2 && c2 %><p><%= "#{o2} 〜 #{c2}" %></p><% end %>
+        <% else %>
+          <p>営業日：なし</p>
+        <% end %>
+    
+        <p style="color:#666; font-size:0.9rem; margin-top:10px;">
+          営業時間・定休日は変更となる場合がございますので、ご来店前に店舗にご確認ください。
+        </p>
+      <% else %>
+        <p style="color:#b50000;">未入力</p>
+      <% end %>
+    </div>
+    
+    <div style="margin-bottom:14px;">
+      <strong>定休日：</strong>
+      <% if irregular %>
+        <span>不定休</span>
+      <% else %>
+        <% if @hours_data.present? %>
+          <% holiday_days = @hours_data.select { |h| h[:holiday] }.map { |h| h[:day] } %>
+          <span><%= holiday_days.any? ? holiday_days.join("・") : "未設定" %></span>
+        <% else %>
+          <span><%= @post.holidays.presence || "未設定" %></span>
+        <% end %>
+      <% end %>
+    </div>
+  ERB
+  ) %></template>
+  <!-- ================== 旧ロジック保管ここまで ================== -->
+  
+  
+  
+  <div style="margin-bottom:14px;">
+  <strong>予算：</strong>
+  <span>
+    <%= (
+      { 0 => "不明", 1000 => "1000円", 2000 => "2000円", 3000 => "3000円" }[@post.budget.to_i] ||
+      (@post.budget.present? ? number_to_currency(@post.budget, unit: "¥", precision: 0) : "未設定")
+    ) %>
+  </span>
+</div>
+  <div style="margin-bottom:14px;"><strong>店舗カテゴリ：</strong><span><%= @post.store_type.presence || "未設定" %></span></div>
+  <div style="margin-bottom:14px;"><strong>喫煙：</strong><span><%= @post.smoking_allowed.presence || "未設定" %></span></div>
+  <div style="margin-bottom:18px;">
+    <strong>店舗概要：</strong>
+    <div style="color:#222; margin-top:4px; font-size:0.98rem"><%= simple_format(@post.description.presence || "未入力") %></div>
+  </div>
+  <!-- ========= confirm.html.erb の「店舗関係者／連絡先」表示 全文置換 ========= -->
+  <%# boolean/文字列どちらでも受け取り可 %>
+  <% owner_raw = @post.is_owner %>
+  <% owner_flag =
+       case owner_raw
+       when true, 'true', 1, '1' then true
+       when false, 'false', 0, '0' then false
+       else nil
+       end %>
+  
+  <div style="margin-bottom:14px;">
+    <strong>店舗関係者：</strong>
+    <span><%= owner_flag.nil? ? "未回答" : (owner_flag ? "そうです" : "いいえ") %></span>
+  </div>
+  
+  <div style="margin-bottom:14px;">
+    <strong>連絡先：</strong>
+    <span><%= owner_flag ? (@post.contact_info.presence || "未入力") : "—" %></span>
+  </div>
+  
+
+<!-- app/views/posts/confirm.html.erb （送信フォーム部分のみ・全文置換） -->
+<%= form_with model: @post, url: posts_path, method: :post do |f| %>
+  <%= hidden_field_tag "post[name]", @post.name %>
+  <%= hidden_field_tag "post[prefecture]", @post.prefecture %>
+  <%= hidden_field_tag "post[city]", @post.city %>
+  <%= hidden_field_tag "post[address_detail]", @post.address_detail %>
+  <%= hidden_field_tag "post[opening_time]", @post.opening_time %>
+  <%= hidden_field_tag "post[closing_time]", @post.closing_time %>
+  <%= hidden_field_tag "post[seating_capacity]", @post.seating_capacity %>
+  <%= hidden_field_tag "post[store_type]", @post.store_type %>
+  <%= hidden_field_tag "post[smoking_allowed]", @post.smoking_allowed %>
+  <%= hidden_field_tag "post[holidays]", @post.holidays %>
+  <%= hidden_field_tag "post[budget]", @post.budget %>
+  <%= hidden_field_tag "post[description]", @post.description %>
+  <%= hidden_field_tag "post[is_owner]", @post.is_owner %>
+  <%= hidden_field_tag "post[contact_info]", @post.contact_info %>
+  <%= hidden_field_tag "post[status]", @post.status %>
+
+  <%# サブ画像のカテゴリ配列を再送 %>
+  <% (params.dig(:post, :sub_images_category) || []).each do |c| %>
+    <%= hidden_field_tag "post[sub_images_category][]", c %>
   <% end %>
 
-  <%= f.submit "申請する" %>
+  <%# 営業時間の再送（必要なら） %>
+  <% (@hours_data || []).each do |h| %>
+    <%= hidden_field_tag "post[opening_hours][#{h[:day]}_open1]",  h[:open1] %>
+    <%= hidden_field_tag "post[opening_hours][#{h[:day]}_close1]", h[:close1] %>
+    <%= hidden_field_tag "post[opening_hours][#{h[:day]}_open2]",  h[:open2] %>
+    <%= hidden_field_tag "post[opening_hours][#{h[:day]}_close2]", h[:close2] %>
+    <%= hidden_field_tag "post[opening_hours][#{h[:day]}_holiday]", (h[:holiday] ? 1 : 0) %>
+  <% end %>
+  <%= hidden_field_tag "post[irregular_holiday]", (@irregular_holiday ? 1 : 0) %>
+
+  <div style="margin-top:30px; display:flex; justify-content:center; gap:20px;">
+    <%= button_to '戻る', new_post_path, method: :get,
+          style:"background:#888; color:#fff; border:none; border-radius:8px; padding:12px 24px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 3px 6px rgba(0,0,0,0.2);" %>
+
+    <%= submit_tag "この内容で申請する",
+          style:"background:#b50000; color:#fff; border:none; border-radius:8px; padding:12px 24px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 3px 6px rgba(0,0,0,0.2);" %>
+  </div>
 <% end %>
 
-<%= link_to "戻る", new_post_path, method: :get %>
+  

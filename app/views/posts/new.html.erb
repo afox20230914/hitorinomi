@@ -1,95 +1,570 @@
-<h1>新規店舗申請フォーム</h1>
+<!-- app/views/posts/new.html.erb -->
 
-<%= form_with model: @post, url: confirm_posts_path, local: true do |f| %>
-  <% if @post.errors.any? %>
-    <ul>
-      <% @post.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-    </ul>
-  <% end %>
+<div class="post-form-container" style="text-align:center; max-width:700px; margin:0 auto;">
+  <h1 style="font-size:1.8rem; font-weight:bold; margin-bottom:20px;">新規店舗申請フォーム</h1>
 
-  <div>
-    <%= f.label :images, "画像（10枚まで、jpg）" %><br>
-    <%= f.file_field :images, multiple: true, accept: "image/jpeg" %>
-  </div>
+  <h2 style="font-size:1.2rem; margin-bottom:18px;">メイン画像アップロード</h2>
 
-  <div>
-    <%= f.label :name, "店舗名" %>
-    <%= f.text_field :name, maxlength: 100, required: true %>
-  </div>
+  <%= form_with model: @post, url: confirm_posts_path, local: true, html: { multipart: true, autocomplete: "off" } do |f| %>
+    <div class="upload-group" style="border:1px solid #ddd; border-radius:8px; padding:16px;">
+      <%= f.file_field :main_images, multiple: true, accept: "image/jpeg,image/png",
+            name: "post[main_images][]", id: "main-images", style: "display:none;" %>
 
-  <div>
-    <%= f.label :postal_code, "郵便番号（ハイフンなし）" %>
-    <%= f.text_field :postal_code, required: true %>
-  </div>
+      <label for="main-images"
+             style="display:inline-block; cursor:pointer; background:#333; color:#fff; padding:8px 14px; border-radius:8px; font-weight:bold;">
+        画像を選択
+      </label>
 
-  <div>
-    <%= f.label :prefecture, "都道府県" %>
-    <%= f.select :prefecture, 
-          ["北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
-           "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
-           "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県",
-           "岐阜県", "静岡県", "愛知県", "三重県",
-           "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県",
-           "鳥取県", "島根県", "岡山県", "広島県", "山口県",
-           "徳島県", "香川県", "愛媛県", "高知県",
-           "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"], prompt: "選択してください" %>
-  </div>
+      <div id="preview-main" style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin-top:12px;">
+        <% if @post&.persisted? && @post.main_images.attached? %>
+          <% @post.main_images.each do |img| %>
+            <div style="position:relative;">
+              <%= image_tag img, style: "width:100%; height:auto; border-radius:10px; box-shadow:0 2px 4px #ccc;" %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
 
-  <div>
-    <%= f.label :address_detail, "住所詳細（市区町村以降）" %>
-    <%= f.text_field :address_detail, required: true %>
-  </div>
+    <h2 style="font-size:1.2rem; margin:24px 0 18px;">サブ画像アップロード</h2>
+    <div class="upload-group" style="border:1px solid #ddd; border-radius:8px; padding:16px;">
+      <div class="sub-grid" style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px; align-items:start;">
+        <% (1..9).each do |i| %>
+          <% dom_id = "sub-image-#{i}" %>
+          <div class="sub-slot" style="width:100%; box-sizing:border-box; border:1px solid #ddd; border-radius:12px; padding:12px; text-align:center;">
+            <p style="font-weight:bold; margin:0 0 8px;">サブ<%= i %></p>
 
-  <div>
-    <%= f.label :opening_time, "開店時間" %>
-    <%= f.time_select :opening_time, prompt: true, minute_step: 10 %>
-  </div>
+            <%= f.file_field :sub_images,
+                  accept: "image/jpeg,image/png",
+                  name: "post[sub_images][]",
+                  id: dom_id,
+                  class: "sub-image-input",
+                  data: { index: i },
+                  style: "display:none;" %>
 
-  <div>
-    <%= f.label :closing_time, "閉店時間" %>
-    <%= f.time_select :closing_time, prompt: true, minute_step: 10 %>
-  </div>
+            <label for="<%= dom_id %>"
+                   style="display:inline-block; cursor:pointer; background:#333; color:#fff; padding:8px 14px; border-radius:8px; font-weight:bold;">
+              画像を選択
+            </label>
 
-  <div>
-    <%= f.label :seating_capacity, "座席数" %>
-    <%= f.select :seating_capacity, ["A:10人未満", "B:10～20人", "C:21～30人", "D:30人以上"] %>
-  </div>
+            <!-- 戻る後、既に添付されている画像を表示 -->
+            <div id="sub-preview-<%= i %>" style="position:relative; margin:10px 0 8px; <%= (@post&.persisted? && @post.sub_images.attached? && @post.sub_images[i-1].present?) ? '' : 'display:none;' %>">
+              <% if @post&.persisted? && @post.sub_images.attached? && (img = @post.sub_images[i-1]).present? %>
+                <%= image_tag img, style: "width:100%; height:auto; border-radius:10px; box-shadow:0 2px 4px #ccc;" %>
+              <% end %>
+            </div>
 
-  <div>
-    <%= f.label :store_type, "店舗タイプ" %>
-    <%= f.select :store_type, ["A:立ち飲み", "B:バー", "C:居酒屋", "D:小料理屋", "E:その他"] %>
-  </div>
+            <!-- カテゴリ選択 -->
+            <select id="sub-category-<%= i %>" name="post[sub_images_category][]"
+                    style="width:100%; max-width:220px; padding:6px; border-radius:8px; margin:0 auto; <%= (@post&.persisted? && @post.sub_images.attached? && @post.sub_images[i-1].present?) ? '' : 'display:none;' %>">
+              <option value="">選択してください</option>
+              <option value="exterior_images">店舗外観</option>
+              <option value="interior_images">店舗内観</option>
+              <option value="food_images">料理</option>
+              <option value="menu_images">メニュー</option>
+            </select>
+          </div>
+        <% end %>
+      </div>
+      <div id="sub_images-error" style="color:#b50000; font-size:0.95rem; margin-top:8px;"></div>
+    </div>
 
-  <div>
-    <%= f.label :smoking_allowed, "喫煙" %>
-    <%= f.select :smoking_allowed, ["可", "不可"] %>
-  </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // メイン画像：プレビュー＆×削除
+        const mainInput = document.getElementById('main-images');
+        const mainPrev  = document.getElementById('preview-main');
+        if (mainInput && mainPrev) {
+          function renderMainPreviews() {
+            mainPrev.innerHTML = '';
+            Array.from(mainInput.files).forEach(function(file, idx) {
+              if (!file.type.match('image.*')) return;
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                const card = document.createElement('div');
+                card.style.position = 'relative';
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '100%';
+                img.style.height = 'auto';
+                img.style.borderRadius = '10px';
+                img.style.boxShadow = '0 2px 4px #ccc';
+                const del = document.createElement('button');
+                del.type = 'button';
+                del.textContent = '×';
+                del.setAttribute('aria-label','画像を削除');
+                Object.assign(del.style, {
+                  position:'absolute', top:'6px', right:'6px', width:'28px', height:'28px',
+                  border:'none', borderRadius:'50%', background:'rgba(0,0,0,0.65)',
+                  color:'#fff', fontSize:'18px', lineHeight:'28px', cursor:'pointer'
+                });
+                del.addEventListener('click', function(ev) {
+                  ev.preventDefault();
+                  const dt = new DataTransfer();
+                  Array.from(mainInput.files).forEach(function(f, i){ if(i!==idx) dt.items.add(f); });
+                  mainInput.files = dt.files;
+                  renderMainPreviews();
+                });
+                card.appendChild(img); card.appendChild(del); mainPrev.appendChild(card);
+              };
+              reader.readAsDataURL(file);
+            });
+          }
+          mainInput.addEventListener('change', renderMainPreviews);
+        }
 
-  <div>
-    <%= f.label :holidays, "定休日" %><br>
-    <% ["日", "月", "火", "水", "木", "金", "土", "祝", "不定休", "なし"].each do |day| %>
-      <%= check_box_tag "post[holidays][]", day, false, id: "holidays_#{day}" %>
-      <%= label_tag "holidays_#{day}", day %>
-    <% end %>
-  </div>
+        // サブ画像：個別プレビュー＆×削除＆カテゴリ表示
+        document.querySelectorAll('.sub-image-input').forEach(function(input) {
+          input.addEventListener('change', function() {
+            const idx    = input.dataset.index;
+            const preview= document.getElementById('sub-preview-' + idx);
+            const select = document.getElementById('sub-category-' + idx);
+            preview.innerHTML = ''; preview.style.display = 'none'; if (select) select.style.display = 'none';
 
-  <div>
-    <%= f.label :budget, "予算（円）" %>
-    <%= f.number_field :budget, value: 1000 %>
-  </div>
+            const file = input.files[0];
+            if (!file || !file.type.match('image.*')) return;
 
-  <div>
-    <%= f.label :description, "店舗紹介" %>
-    <%= f.text_area :description, maxlength: 500 %>
-  </div>
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+              const img = document.createElement('img');
+              img.src = evt.target.result;
+              img.style.width = '100%'; img.style.height = 'auto';
+              img.style.borderRadius = '10px'; img.style.boxShadow = '0 2px 4px #ccc';
 
-  <div>
-    <%= f.label :is_owner, "オーナーですか？" %><br>
-    <%= f.radio_button :is_owner, true %> はい
-    <%= f.radio_button :is_owner, false %> いいえ
-  </div>
+              const del = document.createElement('button');
+              del.type = 'button'; del.textContent = '×'; del.setAttribute('aria-label','画像を削除');
+              Object.assign(del.style, {
+                position:'absolute', top:'6px', right:'6px', width:'28px', height:'28px',
+                border:'none', borderRadius:'50%', background:'rgba(0,0,0,0.65)',
+                color:'#fff', fontSize:'18px', lineHeight:'28px', cursor:'pointer'
+              });
+              del.addEventListener('click', function(e){
+                e.preventDefault(); input.value = ''; preview.innerHTML=''; preview.style.display='none';
+                if (select) { select.value=''; select.style.display='none'; }
+              });
 
-  <%= f.submit "確認画面へ" %>
+              preview.appendChild(img); preview.appendChild(del);
+              preview.style.display = 'block'; if (select) select.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+          });
+        });
+      });
+    </script>
+
+    <!-- 店舗名 -->
+    <div style="width:90%; margin:0 auto 15px auto; text-align:left;">
+      <label style="font-weight:bold; display:block; margin-bottom:4px;">
+        店舗名 <span style="font-size:0.8rem; color:#b50000; margin-left:4px;">※必須</span>
+      </label>
+      <%= f.text_field :name, maxlength: 100, required: true, autocomplete: "off",
+            style:"width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;" %>
+    </div>
+
+    <!-- 住所 -->
+    <div style="margin-bottom:20px; text-align:left; display:flex; flex-direction:column; align-items:center;">
+      <div style="width:90%; margin-bottom:10px;">
+        <label style="font-weight:bold; display:block; margin-bottom:4px;">
+          都道府県 <span style="font-size:0.8rem; color:#b50000; margin-left:4px;">※必須</span>
+        </label>
+        <%= f.select :prefecture,
+          ["北海道","青森県","岩手県","宮城県","秋田県","山形県","福島県",
+           "茨城県","栃木県","群馬県","埼玉県","千葉県","東京都","神奈川県",
+           "新潟県","富山県","石川県","福井県","山梨県","長野県",
+           "岐阜県","静岡県","愛知県","三重県",
+           "滋賀県","京都府","大阪府","兵庫県","奈良県","和歌山県",
+           "鳥取県","島根県","岡山県","広島県","山口県",
+           "徳島県","香川県","愛媛県","高知県",
+           "福岡県","佐賀県","長崎県","熊本県","大分県","宮崎県","鹿児島県","沖縄県"],
+          { prompt: "選択してください" },
+          { required: true, autocomplete: "off", style:"width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;" } %>
+      </div>
+
+      <div style="width:90%; margin-bottom:10px;">
+        <label style="font-weight:bold; display:block; margin-bottom:4px;">
+          市区町村以降の住所 <span style="font-size:0.8rem; color:#b50000; margin-left:4px;">※必須</span>
+        </label>
+        <%= f.text_field :address_detail, required: true, autocomplete: "off",
+              placeholder: "例：中央区南船場1-2-3",
+              style:"width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;" %>
+      </div>
+
+      <div style="width:90%;">
+        <label style="font-weight:bold; display:block; margin-bottom:4px;">ビル名・階数</label>
+        <%= f.text_field :building_name, autocomplete: "off",
+              placeholder: "例：ヒトリノミビル 3F",
+              style:"width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;" %>
+      </div>
+    </div>
+
+    <!-- ================== 営業時間（簡易：textarea） ================== -->
+    <div style="width:90%; margin:25px auto; text-align:left;">
+      <h3 style="font-weight:bold; font-size:1rem; margin-bottom:10px;">
+        営業時間 <span style="font-size:0.8rem; color:#666; margin-left:4px;">（任意）</span>
+      </h3>
+
+      <div class="form-group">
+        <label for="hours_textarea" class="form-label">営業時間・定休日をまとめて記入してください（例：月〜金 17:00〜23:00 / 土日祝 定休）</label>
+        <%= f.text_area :hours_text, class: "form-control", rows: 4,
+              placeholder: "例：月〜金 17:00〜23:00 / 土日祝 定休",
+              autocomplete: "off" %>
+      </div>
+    </div>
+
+    <!-- ================== 旧「営業時間詳細入力」フォーム（安全保管・非実行） ================== -->
+    <template id="hours-old-preserved" style="display:none;"><%= raw(ERB::Util.html_escape(<<~'ERB')) %>
+<div style="width:90%; margin:25px auto; text-align:left;">
+<h3 style="font-weight:bold; font-size:1rem; margin-bottom:10px;">
+営業時間 <span style="font-size:0.8rem; color:#666; margin-left:4px;">（任意）</span>
+</h3>
+
+<button type="button" id="open-hours-toggle"
+style="background:#b50000; color:#fff; border:none; border-radius:10px;
+padding:10px 26px; font-size:1.05rem; font-weight:bold; cursor:pointer;
+box-shadow:0 3px 6px rgba(0,0,0,0.2); margin-bottom:18px;">
+営業時間を入力する
+</button>
+
+<div id="hours-form" style="display:none; border:1px solid #ccc; border-radius:12px; padding:20px; background:#fafafa;">
+<h2 style="margin-bottom:15px;">営業時間入力</h2>
+<p style="font-size:0.9rem; color:#666; margin-bottom:20px;">開店・閉店時間は半角数字4桁（例：1730、0930）で入力してください。</p>
+
+<table class="hours-table">
+<colgroup>
+<col class="day"><col class="open"><col class="close"><col class="holiday"><col class="action">
+</colgroup>
+<thead>
+<tr style="background:#f5f5f5;">
+<th>曜日</th><th>開店時間（昼 / 夜）</th><th>閉店時間（昼 / 夜）</th><th>定休日</th><th>操作</th>
+</tr>
+</thead>
+<tbody>
+<% ["月","火","水","木","金","土","日","祝"].each_with_index do |day, idx| %>
+<% disp = (day == "祝" ? "祝日" : "#{day}曜") %>
+<% base = idx * 4 %>
+<tr data-day="<%= day %>">
+<td style="font-weight:bold;"><%= disp %></td>
+<td>
+<div class="time-stack">
+<input class="time-input open1" type="text" name="post[opening_hours][<%= day %>_open1]" maxlength="4" inputmode="numeric" placeholder="昼 例:1100" tabindex="<%= base + 1 %>" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
+<input class="time-input open2" type="text" name="post[opening_hours][<%= day %>_open2]" maxlength="4" inputmode="numeric" placeholder="夜 例:1700" tabindex="<%= base + 3 %>" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
+</div>
+</td>
+<td>
+<div class="time-stack">
+<input class="time-input close1" type="text" name="post[opening_hours][<%= day %>_close1]" maxlength="4" inputmode="numeric" placeholder="昼 例:1500" tabindex="<%= base + 2 %>" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
+<input class="time-input close2" type="text" name="post[opening_hours][<%= day %>_close2]" maxlength="4" inputmode="numeric" placeholder="夜 例:2300" tabindex="<%= base + 4 %>" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
+</div>
+</td>
+<td>
+<input type="checkbox" class="holiday-checkbox" name="post[opening_hours][<%= day %>_holiday]" value="1" aria-label="<%= disp %>を定休日にする">
+</td>
+<td><button type="button" class="copy-button btn-copy">他の曜日へコピー</button></td>
+</tr>
 <% end %>
+</tbody>
+</table>
+
+<div style="margin-top:14px; text-align:left;">
+<label style="font-weight:bold; font-size:1rem; display:inline-flex; align-items:center; gap:8px;">
+<input type="checkbox" id="irregular-holiday" name="post[opening_hours][irregular]" value="1" style="transform:scale(1.4); width:20px; height:20px;">
+不定休
+</label>
+</div>
+</div>
+</div>
+ERB
+    ) %></template>
+    <!-- ================== 旧フォーム保管ここまで ================== -->
+
+    <!-- カテゴリ -->
+    <div class="category-section" style="text-align:left; max-width:700px; margin:40px auto 0;">
+      <h2 style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">カテゴリー</h2>
+      <p style="font-size:0.9rem; color:#666; margin-bottom:20px;">当てはまるカテゴリーを選択してください（1つ選択）</p>
+
+      <div class="category-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; justify-items:center;">
+        <% categories = [
+          { name: "その他", image: "botton_sonota.png", value: "その他" },
+          { name: "居酒屋", image: "botton_izakaya.png", value: "居酒屋" },
+          { name: "立ち飲み", image: "botton_tachinomi.png", value: "立ち飲み" },
+          { name: "小料理屋", image: "botton_koryori.png", value: "小料理屋" },
+          { name: "BAR", image: "botton_bar.png", value: "バー" },
+          { name: "チェーン店", image: "botton_chain.png", value: "チェーン店" }
+        ] %>
+
+        <% categories.each do |c| %>
+          <label class="category-btn" style="position:relative; cursor:pointer; display:block; width:140px;">
+            <%= radio_button_tag "post[store_type]", c[:value], (c[:value] == "その他"),
+                  class:"category-radio", style:"display:none;" %>
+            <div class="category-wrapper" style="position:relative; width:140px;">
+              <%= image_tag c[:image], alt: c[:name],
+                    style:"width:140px; height:auto; border-radius:12px; display:block;" %>
+              <div class="overlay"
+                   style="position:absolute; top:0; left:0; width:100%; height:100%;
+                   background:rgba(0,0,0,0.5); border-radius:12px; transition:0.2s;
+                   pointer-events:none;"></div>
+              <div class="checkmark" style="position:absolute; top:5px; right:5px; font-size:22px; color:#b50000; display:none;">✔</div>
+            </div>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- 予算 -->
+    <div class="budget-section" style="text-align:left; max-width:700px; margin:40px auto 0;">
+      <h2 style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">予算</h2>
+      <p style="font-size:0.9rem; color:#666; margin-bottom:20px;">おおよその予算を選択してください（1つ選択）</p>
+
+      <% budgets = [
+        { name: "不明", image: "fumei.png", value: 0 },
+        { name: "1000円", image: "1000yen.png", value: 1000 },
+        { name: "2000円", image: "2000yen.png", value: 2000 },
+        { name: "3000円", image: "3000yen.png", value: 3000 }
+      ] %>
+
+      <div class="budget-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:20px; justify-items:center;">
+        <% budgets.each do |b| %>
+          <label class="budget-btn" style="position:relative; cursor:pointer; display:block; width:140px;">
+            <%= radio_button_tag "post[budget]", b[:value], (b[:value] == 0),
+                  class: "budget-radio", style: "display:none;" %>
+
+            <div class="budget-wrapper" style="position:relative; width:140px;">
+              <%= image_tag b[:image], alt: b[:name],
+                    style:"width:140px; height:auto; border-radius:12px; display:block;" %>
+
+              <div class="overlay"
+                   style="position:absolute; top:0; left:0; width:100%; height:100%;
+                   background:rgba(0,0,0,0.5); border-radius:12px; transition:0.2s;
+                   pointer-events:none;"></div>
+              <div class="checkmark"
+                   style="position:absolute; top:5px; right:5px; font-size:22px; color:#b50000; display:none;">
+                ✔
+              </div>
+            </div>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- 喫煙 -->
+    <div class="smoking-section" style="text-align:left; max-width:700px; margin:40px auto 0%;">
+      <h2 style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">喫煙</h2>
+      <p style="font-size:0.9rem; color:#666; margin-bottom:20px;">喫煙可否を選択してください（1つ選択）</p>
+      <div class="smoking-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:20px; justify-items:center;">
+        <% smokings = [
+          { name: "不明", image: "fumei.png", value: "不明" },
+          { name: "喫煙可", image: "kitsuen.png", value: "喫煙可" },
+          { name: "禁煙", image: "kinen.png", value: "禁煙" },
+          { name: "喫煙所あり", image: "kitsuenjo.png", value: "喫煙所あり" }
+        ] %>
+        <% smokings.each do |s| %>
+          <label class="smoking-btn" style="position:relative; cursor:pointer; display:block; width:140px;">
+            <%= radio_button_tag "post[smoking_allowed]", s[:value], (s[:value] == "不明"),
+                  class:"smoking-radio", style:"display:none;" %>
+            <div class="smoking-wrapper" style="position:relative; width:140px;">
+              <%= image_tag s[:image], alt: s[:name],
+                    style:"width:140px; height:auto; border-radius:12px; display:block;" %>
+              <div class="overlay"
+                   style="position:absolute; top:0; left:0; width:100%; height:100%;
+                   background:rgba(0,0,0,0.5); border-radius:12px; transition:0.2s;
+                   pointer-events:none;"></div>
+              <div class="checkmark" style="position:absolute; top:5px; right:5px; font-size:22px; color:#b50000; display:none;">✔</div>
+            </div>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- 店舗概要 -->
+    <div class="store-description" style="text-align:left; max-width:700px; margin:40px auto 0;">
+      <h2 style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">店舗概要 <span style="font-size:0.8rem; color:#888;">（任意）</span></h2>
+      <p style="font-size:0.9rem; color:#666; margin-bottom:10px;">お店の雰囲気や特徴などをご自由に記入してください（300文字以内）</p>
+      <%= f.text_area :description, maxlength: 300, rows: 6, autocomplete: "off",
+            style: "width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; resize:none; font-size:0.95rem;" %>
+      <p id="char-count" style="text-align:right; font-size:0.8rem; color:#666; margin-top:5px;">0 / 300</p>
+    </div>
+
+    <!-- 店舗関係者 -->
+    <div class="owner-section" style="text-align:left; max-width:700px; margin:40px auto 0;">
+      <h2 style="font-size:1.4rem; font-weight:bold; margin-bottom:10px;">あなたは店舗関係者ですか？</h2>
+
+      <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:20px; justify-items:center;">
+        <% owners = [
+          { name: "いいえ", image: "ieie.png", value: "false" },
+          { name: "そうです", image: "soudesu.png", value: "true" }
+        ] %>
+
+        <% owners.each_with_index do |o, idx| %>
+          <% radio_id = "post_is_owner_#{idx}" %>
+          <label class="owner-btn" for="<%= radio_id %>"
+                 style="position:relative; cursor:pointer; display:block; width:160px;">
+            <%= radio_button_tag "post[is_owner]", o[:value],
+                  (@post.is_owner.to_s == o[:value]),
+                  id: radio_id, class: "owner-radio", style: "display:none;" %>
+
+            <div class="owner-wrapper" style="position:relative; width:160px;">
+              <%= image_tag o[:image], alt: o[:name],
+                    style:"width:160px; height:auto; border-radius:12px; display:block;" %>
+              <div class="overlay"
+                   style="position:absolute; top:0; left:0; width:100%; height:100%;
+                   background:rgba(0,0,0,0.5); border-radius:12px; transition:0.12s; pointer-events:none;"></div>
+              <div class="checkmark" data-check-for="<%= radio_id %>"
+                   style="position:absolute; top:5px; right:5px; font-size:22px; color:#b50000; display:none;">✔</div>
+            </div>
+          </label>
+        <% end %>
+      </div>
+
+      <!-- 連絡先 -->
+      <div id="contact-field" style="margin-top:25px; display:none;">
+        <label for="contact_info" style="font-weight:bold; display:block; margin-bottom:5px;">
+          連絡先（半角英数字のみ）
+          <span id="contact-required" style="font-size:0.8rem; color:#b50000; margin-left:4px; display:none;">※必須</span>
+        </label>
+        <input type="text" id="contact_info" name="post[contact_info]"
+               placeholder="例：example@email.com または 09012345678"
+               style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;"
+               inputmode="text" autocomplete="off"
+               oninput="this.value=this.value.replace(/[^a-zA-Z0-9@._-]/g,'');"
+               value="<%= h(@post.contact_info) %>">
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // ガード（多重初期化防止）
+        if (window.__ownerInitDone) return;
+        window.__ownerInitDone = true;
+
+        function syncOwnerUI() {
+          const radios  = Array.from(document.querySelectorAll('input[name="post[is_owner]"]'));
+          const contact = document.getElementById('contact-field');
+          const req     = document.getElementById('contact-required');
+          const input   = document.getElementById('contact_info');
+
+          if (!radios.length) return;
+
+          // ラベルクリック → change 発火
+          document.querySelectorAll('.owner-btn').forEach(label => {
+            label.addEventListener('click', () => {
+              const forId = label.getAttribute('for');
+              if (forId) {
+                const r = document.getElementById(forId);
+                if (r) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
+              }
+            });
+          });
+
+          // ラジオchangeでUI切替
+          radios.forEach(r => {
+            r.addEventListener('change', () => {
+              const checked = radios.find(x => x.checked);
+              const yes = checked && checked.value === 'true';
+              if (contact) contact.style.display = yes ? 'block' : 'none';
+              if (req)     req.style.display     = yes ? 'inline' : 'none';
+              if (input) {
+                input.required = !!yes;
+                if (!yes) input.value = '';
+              }
+
+              // チェックマーク表示切替
+              document.querySelectorAll('.checkmark').forEach(chk => {
+                const forId = chk.getAttribute('data-check-for');
+                const rr = forId ? document.getElementById(forId) : null;
+                chk.style.display = (rr && rr.checked) ? 'block' : 'none';
+              });
+            });
+          });
+
+          // 初期同期
+          const initialChecked = radios.find(x => x.checked);
+          if (initialChecked) {
+            initialChecked.dispatchEvent(new Event('change', { bubbles: true }));
+          } else {
+            if (contact) contact.style.display = 'none';
+            if (req)     req.style.display     = 'none';
+            document.querySelectorAll('.checkmark').forEach(chk => chk.style.display = 'none');
+          }
+        }
+
+        document.addEventListener('turbolinks:load', syncOwnerUI);
+        document.addEventListener('turbo:load',      syncOwnerUI);
+        document.addEventListener('DOMContentLoaded',syncOwnerUI);
+      })();
+    </script>
+
+    <script>
+      (function () {
+        function initOwnerContact() {
+          const ownerRadios  = document.querySelectorAll('input[name="post[is_owner]"].owner-radio');
+          const contactBlock = document.getElementById('contact-field');
+          const reqLabel     = document.getElementById('contact-required');
+          const contactInput = document.getElementById('contact_info');
+
+          if (!ownerRadios.length || !contactBlock) return;
+
+          // 画像クリック保険
+          document.querySelectorAll('.owner-btn').forEach(lbl => {
+            lbl.addEventListener('click', () => {
+              const radio = document.getElementById(lbl.getAttribute('for'));
+              if (!radio) return;
+              setTimeout(() => {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+              }, 0);
+            });
+          });
+
+          function updateContact() {
+            const checked = document.querySelector('input[name="post[is_owner]"]:checked');
+            const isOwner = checked && checked.value === 'true';
+            contactBlock.style.display = isOwner ? 'block' : 'none';
+            if (reqLabel)   reqLabel.style.display   = isOwner ? 'inline' : 'none';
+            if (contactInput){
+              contactInput.required = isOwner;
+              if (!isOwner) contactInput.value = '';
+            }
+          }
+
+          ownerRadios.forEach(r => r.addEventListener('change', updateContact));
+          updateContact(); // 初期同期
+        }
+
+        document.addEventListener('turbolinks:load', initOwnerContact);
+        document.addEventListener('turbo:load',      initOwnerContact);
+        document.addEventListener('DOMContentLoaded',initOwnerContact);
+      })();
+    </script>
+
+    <div style="margin-top: 40px; display:flex; justify-content:center;">
+      <button type="submit" style="background:#333; color:#fff; border:none; border-radius:8px;
+              padding:16px 38px; font-weight:bold; font-size:1.1rem;
+              cursor:pointer; box-shadow:0 3px 6px rgba(0,0,0,0.2);
+              display:flex; align-items:center; gap:10px;">
+        確認画面へ
+        <%= image_tag "ikuzo.png", alt:"行くぞ！", style:"height:100px; width:auto; vertical-align:middle;" %>
+      </button>
+    </div>
+
+    <%= f.hidden_field :status, value: "公開" %>
+  <% end %>
+</div>
+
+<script>
+  (function () {
+    // 重複初期化ガード（Turbolinks/Turboでも多重登録しない）
+    function init() {
+      if (window.__postNewInit) return;
+      window.__postNewInit = true;
+
+      // 旧：.image-input を使った一括プレビュー（将来復活用の最低限フックのみ）
+      // 現在は .sub-image-input / #main-images に実装済みのため何もしない
+    }
+
+    document.addEventListener('turbolinks:load', init);
+    document.addEventListener('turbo:load',      init);
+    document.addEventListener('DOMContentLoaded',init);
+  })();
+</script>
+
+

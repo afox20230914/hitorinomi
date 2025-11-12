@@ -1,3 +1,30 @@
+<!-- 背景動画と白オーバーレイ -->
+<div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden;">
+  <video id="bg-video" autoplay muted playsinline loop
+         style="width: 100%; height: 100%; object-fit: cover;"></video>
+  <div id="overlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                           background-color: rgba(255,255,255,0.5); z-index: 10; opacity: 0; transition: opacity 1s;"></div>
+</div>
+
+<!-- tatelogo -->
+<img src="<%= asset_path('tatelogo.png') %>" alt="tatelogo" 
+     id="tatelogo"
+     style="position: fixed; bottom: 10px; right: 20px; width: 600px; z-index: 20; display: none; transition: opacity 0.5s;">
+
+<!-- 探すボタン -->
+<%= link_to stores_path do %>
+  <img src="<%= asset_path('sagasu.png') %>" alt="探す" 
+       id="sagasu-btn"
+       style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+              width: 25%; z-index: 30; display: none; transition: opacity 0.5s;">
+<% end %>
+
+<!-- スクロール可能領域 -->
+<div style="height: 300vh;"></div>
+
+<!-- Aboutセクション -->
+<div id="about-section" style="padding: 5rem 2rem; z-index: 100; display: none; position: relative;">
+  <div style="max-width: 800px; margin: 0 auto; font-size: 1.2rem; line-height: 2; text-align: center; color: #000;">
     <p><strong>ヒトリでふらっと飲みに行く時間が、何よりも楽しみな酒飲みのためのサイト</strong></p>
 
     <p>アナタのいつものお店をぜひご紹介ください！  
@@ -7,3 +34,77 @@
 
     <p>自分にとっての「行きつけ」が増えていく感覚と、ゆるく人とつながれる感覚。  
     その両方が手に入るような場所として、ヒトリ飲みの時間がより豊かにしましょう。</p>
+  </div>
+</div>
+
+<script>
+  const videos = ['<%= asset_path("top_loop01.mp4") %>', '<%= asset_path("top_loop02.mp4") %>'];
+  let videoIndex = 0;
+  const videoElement = document.getElementById('bg-video');
+
+  function playNextVideo() {
+    videoElement.src = videos[videoIndex];
+    videoElement.play();
+    videoIndex = (videoIndex + 1) % videos.length;
+  }
+
+  videoElement.addEventListener('ended', playNextVideo);
+  playNextVideo();
+
+  // overlay → logo → button 表示
+  setTimeout(() => {
+    const overlay = document.getElementById('overlay');
+    overlay.style.display = 'block';
+    requestAnimationFrame(() => overlay.style.opacity = '1');
+
+    setTimeout(() => {
+      const logo = document.getElementById('tatelogo');
+      logo.style.display = 'block';
+      logo.style.opacity = '1';
+
+      setTimeout(() => {
+        const btn = document.getElementById('sagasu-btn');
+        btn.style.display = 'block';
+        btn.style.opacity = '1';
+      }, 1000);
+    }, 1000);
+  }, 3000);
+
+  // スクロール制御
+  let aboutShown = false;
+
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    const logo = document.getElementById('tatelogo');
+    const btn = document.getElementById('sagasu-btn');
+    const about = document.getElementById('about-section');
+
+    // ヘッダー常時表示
+    document.querySelector('.header').style.position = 'fixed';
+    document.querySelector('.header').style.top = '0';
+    document.querySelector('.header').style.left = '0';
+    document.querySelector('.header').style.width = '100%';
+    document.querySelector('.header').style.zIndex = '2000';
+
+    // About表示
+    if (!aboutShown && scrollY > window.innerHeight * 0.8) {
+      about.style.display = 'block';
+      aboutShown = true;
+    }
+
+    // 上下スクロールによる logo / btn の表示切り替え
+    if (scrollY > window.innerHeight * 0.5) {
+      if (logo) logo.style.opacity = '0';
+      if (btn) btn.style.opacity = '0';
+    } else {
+      if (logo) {
+        logo.style.display = 'block';
+        logo.style.opacity = '1';
+      }
+      if (btn) {
+        btn.style.display = 'block';
+        btn.style.opacity = '1';
+      }
+    }
+  });
+</script>

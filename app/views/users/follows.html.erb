@@ -1,0 +1,70 @@
+<div class="follow-page" style="max-width:800px; margin:0 auto; text-align:center; position:relative;">
+
+  <!-- ✅ フォロワー通知設定ボタン（右上固定） -->
+  <% if current_user == @user %>
+    <%= link_to "フォロワー通知設定", "#",
+        style: "position:absolute; top:0; right:0; background:#555; color:#fff; padding:8px 14px; border-radius:8px; text-decoration:none; font-weight:bold;" %>
+  <% end %>
+
+  <!-- ユーザー情報 -->
+  <h2 style="font-weight:bold; font-size:1.6rem; margin-bottom:20px;">
+    <%= @user.username %> さん（ID:<%= @user.id %>）
+  </h2>
+
+  <!-- ✅ フォロワー / フォロー中 切替ボタン -->
+  <div style="display:flex; justify-content:center; gap:12px; margin-bottom:25px;">
+    <%= link_to "フォロワー", followers_user_path(@user),
+        class: "btn-switch #{'active' if @tab == :followers}",
+        style: "padding:10px 20px; border-radius:6px; text-decoration:none; font-weight:bold;
+                background:#{@tab == :followers ? '#b50000' : '#ccc'}; color:#fff;" %>
+
+    <%= link_to "フォロー中", follows_user_path(@user),
+        class: "btn-switch #{'active' if @tab == :following}",
+        style: "padding:10px 20px; border-radius:6px; text-decoration:none; font-weight:bold;
+                background:#{@tab == :following ? '#b50000' : '#ccc'}; color:#fff;" %>
+  </div>
+
+  <!-- ✅ ユーザー一覧カード -->
+  <div class="follow-list" style="display:flex; flex-direction:column; gap:12px; align-items:center;">
+    <% list = (@tab == :followers ? @followers : @following) %>
+    <% if list.any? %>
+      <% list.sort_by(&:created_at).reverse.each do |u| %>
+        <% mutual = @user.following.include?(u) && @user.followers.include?(u) %>
+
+        <%= link_to user_path(u), style:"width:90%; max-width:700px; text-decoration:none;" do %>
+          <div style="display:flex; align-items:center; justify-content:space-between;
+                      background:#fff; border:1px solid #ddd; border-radius:10px;
+                      padding:10px 12px; text-align:left;"> <!-- ← 縦パディングを小さく -->
+
+            <!-- 左側：アイコンと情報 -->
+            <div style="display:flex; align-items:center; gap:10px;">
+              <% if u.icon.attached? %>
+                <%= image_tag u.icon, style:"width:55px; height:55px; border-radius:50%; object-fit:cover;" %>
+              <% else %>
+                <%= image_tag 'icon.png', style:"width:55px; height:55px; border-radius:50%; object-fit:cover;" %>
+              <% end %>
+
+              <div>
+                <p style="font-size:1rem; font-weight:bold; color:#333; margin:0;">
+                  <%= u.username %>
+                </p>
+                <p style="font-size:0.85rem; color:#666; margin:3px 0 0;">
+                  <%= truncate(u.profile.presence || "プロフィール未設定", length: 80) %>
+                </p>
+              </div>
+            </div>
+
+            <!-- ✅ 相互フォロワーなら右側にアイコン表示 -->
+            <% if mutual %>
+              <%= image_tag "nomitomo.png", alt: "のみとも",
+                    style: "width:100px; height:auto; flex-shrink:0; margin-left:10px;" %>
+            <% end %>
+
+          </div>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p style="color:#888;">ユーザーがいません。</p>
+    <% end %>
+  </div>
+</div>

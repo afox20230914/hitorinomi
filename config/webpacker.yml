@@ -51,14 +51,12 @@ development:
   <<: *default
   compile: true
 
-  # Reference: https://webpack.js.org/configuration/dev-server/
   dev_server:
     https: false
     host: localhost
     port: 3035
     public: localhost:3035
     hmr: false
-    # Inline should be set to true if using HMR
     inline: true
     overlay: true
     compress: true
@@ -71,22 +69,14 @@ development:
     watch_options:
       ignored: '**/node_modules/**'
 
-
 test:
   <<: *default
   compile: true
-
-  # Compile test packs to a separate directory
   public_output_path: packs-test
 
 production:
   <<: *default
+  compile: false        # ← これだけでよい（重複させない）
+  extract_css: true     # ← 1回だけ定義
+  cache_manifest: true  # ← 1回だけ定義
 
-  # Production depends on precompilation of packs prior to booting for performance.
-  compile: false
-
-  # Extract and emit a css file
-  extract_css: true
-
-  # Cache manifest.json for performance
-  cache_manifest: true

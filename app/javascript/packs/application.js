@@ -323,5 +323,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// app/javascript/packs/application.js
+import "../packs/application.scss"
+
+
 
 //= require image_preview
